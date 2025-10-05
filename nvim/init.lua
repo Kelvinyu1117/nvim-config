@@ -1,3 +1,7 @@
+
+-- Set leader key FIRST, before anything else
+vim.g.mapleader = "."
+vim.g.maplocalleader = ","
 require("config.lazy")
 vim.cmd("colorscheme onedark")
 
@@ -5,13 +9,10 @@ vim.env.PATH = vim.env.PATH .. ":/home/user/.cargo/bin/"
 
 vim.cmd("set number")
 vim.cmd("set relativenumber")
-
+vim.cmd("set mouse=a")
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
+vim.keymap.set('n', '<leader>h', '<C-w>h')
+vim.keymap.set('n', '<leader>l', '<C-w>l')
 
-local builtin = require('telescope.builtin')
-vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
-vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
-vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
