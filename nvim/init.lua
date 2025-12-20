@@ -15,4 +15,5 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
+vim.lsp.inlay_hint.enable(true)
 
