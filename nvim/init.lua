@@ -13,8 +13,17 @@ vim.cmd("set mouse=a")
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
+
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
+vim.keymap.set('i', '<c-s>', function() vim.lsp.buf.signature_help() end, {buffer=true})
+
+vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(
+    vim.lsp.handlers['signature_help'], {
+        border = 'single',
+        close_events = {"CursorMoved", "BufHidden", "InsertCharPre"},
+    }
+)
 
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
