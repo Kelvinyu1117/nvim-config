@@ -15,5 +15,39 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
-vim.lsp.inlay_hint.enable(true)
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    local bufopts = { noremap = true, silent = true, buffer = bufnr }
+    vim.lsp.inlay_hint.enable(true, bufnr)
+      
+    -- Navigation (perfect - keep)
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+    vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
+    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+    
+    -- Info
+    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+    vim.keymap.set('n', '<leader>k', vim.lsp.buf.signature_help, bufopts)  -- Fixed!
+    
+    -- Refactoring
+    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, bufopts)
+    vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, bufopts)
+    
+    -- Diagnostics
+    vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, bufopts)
+    vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, bufopts)
+    vim.keymap.set('n', ']d', vim.diagnostic.goto_next, bufopts)
+    
+    -- References
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+    
+    -- Workspace
+    vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, bufopts)
+    vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
+  end,
+})
+
+
 
