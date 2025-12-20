@@ -22,6 +22,9 @@ vim.api.nvim_set_hl(0, "FloatBorder", { link = "Normal" })
 vim.api.nvim_set_hl(0, "LspReferenceText", { link = "Normal" })
 vim.api.nvim_set_hl(0, "LspReferenceRead", { link = "Normal" })
 vim.api.nvim_set_hl(0, "LspReferenceWrite", { link = "Normal" })
+vim.api.nvim_set_hl(0, "Pmenu", { link = "Normal" })
+vim.api.nvim_set_hl(0, "PmenuSel", { link = "Visual" })
+
 
 
 vim.api.nvim_create_autocmd("LspAttach", {
