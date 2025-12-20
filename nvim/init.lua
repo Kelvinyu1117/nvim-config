@@ -28,7 +28,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
     
     -- Info
-    vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+    vim.keymap.set("n", "K", "<cmd>Lspsaga hover_doc<CR>", bufopts)
     vim.keymap.set('n', '<leader>k', vim.lsp.buf.signature_help, bufopts)  -- Fixed!
     
     -- Refactoring
