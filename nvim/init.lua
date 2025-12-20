@@ -16,7 +16,7 @@ vim.opt.expandtab = true
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
 
-vim.api.nvim_set_hl(0, "NormalFloat", { link = "CmpItemMenu" })
+vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
 
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
