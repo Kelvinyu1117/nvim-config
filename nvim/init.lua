@@ -16,6 +16,14 @@ vim.opt.expandtab = true
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
 
+-- Flatten LSP hover styling so it follows One Dark Pro
+vim.api.nvim_set_hl(0, "NormalFloat", { link = "Normal" })
+vim.api.nvim_set_hl(0, "FloatBorder", { link = "Normal" })
+vim.api.nvim_set_hl(0, "LspReferenceText", { link = "Normal" })
+vim.api.nvim_set_hl(0, "LspReferenceRead", { link = "Normal" })
+vim.api.nvim_set_hl(0, "LspReferenceWrite", { link = "Normal" })
+
+
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
