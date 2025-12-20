@@ -16,28 +16,6 @@ vim.opt.expandtab = true
 vim.keymap.set('n', '<leader>h', '<C-w>h')
 vim.keymap.set('n', '<leader>l', '<C-w>l')
 
--- Flatten LSP hover styling so it follows One Dark Pro
-vim.api.nvim_create_autocmd("ColorScheme", {
-  group = vim.api.nvim_create_augroup("FixLspHover", { clear = true }),
-  callback = function()
-    -- make hover use normal onedarkpro colors instead of green markdown
-    vim.cmd("highlight! link NormalFloat Normal")
-    vim.cmd("highlight! link FloatBorder Normal")
-
-    " flatten markdown-ish groups *to your theme's Normal*"
-    vim.cmd("highlight! link mkdLineBreak Normal")
-    vim.cmd("highlight! link markdownCode Normal")
-    vim.cmd("highlight! link markdownCodeBlock Normal")
-    vim.cmd("highlight! link markdownCodeDelimiter Normal")
-
-    " if hover is borrowing from popup menu, make it match too"
-    vim.cmd("highlight! link Pmenu Normal")
-  end,
-})
-
-
-
-
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local bufnr = args.buf
