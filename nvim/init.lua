@@ -77,13 +77,16 @@ vim.keymap.set("i", "<C-s>", function()
   vim.lsp.buf.signature_help()
 end)
 
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-  vim.lsp.handlers["signature_help"],
-  {
-    border = "single",
-    close_events = { "CursorMoved", "BufHidden", "InsertCharPre" },
+vim.lsp.config('*', {
+  handlers = {
+    ['textDocument/signatureHelp'] = function(err, result, ctx, config)
+      config = vim.tbl_deep_extend('force', config or {}, { border = 'single' })
+      vim.lsp.handlers['signature_help'](err, result, ctx, config)
+    end,
   }
-)
+})
+vim.lsp.buf.signature_help({ border = 'single' })
+vim.diagnostic.config({ float = { border = 'single' } })
 
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
