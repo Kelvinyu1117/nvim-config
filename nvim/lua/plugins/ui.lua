@@ -47,6 +47,7 @@ return {
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
         { "<leader>gh", group = "hunks" },
+        { "<leader>m", group = "cmake" },
         { "<leader>q", group = "quit/session" },
         { "<leader>r", group = "run tasks" },
         { "<leader>s", group = "search" },
