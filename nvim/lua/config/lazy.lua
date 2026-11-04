@@ -1,4 +1,4 @@
--- Bootstrap lazy.nvim
+-- Bootstrap lazy.nvim (https://lazy.folke.io)
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -15,19 +15,17 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- Make sure to setup `mapleader` and `maplocalleader` before
--- loading lazy.nvim so that mappings are correct.
--- This is also a good place to setup other settings (vim.opt)
-
--- Setup lazy.nvim
 require("lazy").setup({
-  spec = {
-    -- import your plugins
-    { import = "plugins" },
+  spec = { { import = "plugins" } }, -- loads every file in lua/plugins/
+  install = { colorscheme = { "tokyonight", "habamax" } },
+  checker = { enabled = true, notify = false }, -- check for updates quietly; see `:Lazy`
+  change_detection = { notify = false },
+  rocks = { enabled = false }, -- no plugin here needs luarocks
+  ui = { border = "rounded" },
+  performance = {
+    rtp = {
+      -- netrw is replaced by the snacks explorer. `tutor` is kept on purpose: run `:Tutor`!
+      disabled_plugins = { "gzip", "netrwPlugin", "tarPlugin", "tohtml", "zipPlugin" },
+    },
   },
-  -- Configure any other settings here. See the documentation for more details.
-  -- colorscheme that will be used when installing plugins.
-  install = { colorscheme = { "onedark_vivid" } },
-  -- automatically check for plugin updates
-  checker = { enabled = true },
 })
