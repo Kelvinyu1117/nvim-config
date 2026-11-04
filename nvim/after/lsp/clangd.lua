@@ -1,7 +1,9 @@
 -- Merged on top of nvim-lspconfig's clangd defaults.
--- clangd needs a compile_commands.json at the project root to understand your build:
---   CMake:  cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && ln -s build/compile_commands.json .
+-- clangd is the language server for C, C++ and CUDA. It needs a compile_commands.json at the
+-- project root to understand your build:
+--   CMake:  <Space>mg (cmake-tools, plugins/cpp.lua) generates and links it for you
 --   Make:   bear -- make
+-- For CUDA, run :CudaClangdSetup once so clangd understands nvcc's flags.
 return {
   cmd = {
     "clangd",

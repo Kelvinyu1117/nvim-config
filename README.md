@@ -12,6 +12,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [Requirements](#requirements)
 - [Install](#install)
 - [Update, reset, uninstall](#update-reset-uninstall)
+- [One config, every machine](#one-config-every-machine)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
 - [Keymaps](#keymaps)
@@ -33,6 +34,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - **Format on save**, which is safe in foreign codebases (conform.nvim).
 - **Git**: change signs, hunk staging, blame, lazygit, side-by-side diffs.
 - **Debugger** (nvim-dap) for C/C++/CUDA/Rust (codelldb) and Python (debugpy).
+- **C++/CUDA with CMake**: configure, build, run and debug targets (`<Space>m`), and clangd set up to understand nvcc builds.
 - **Tests and tasks**: run the nearest test (neotest) and build/run with cargo/cmake/make (overseer).
 - **Seamless splits**: `Ctrl-h/j/k/l` moves between Neovim splits *and* Zellij/tmux panes.
 - **Clipboard over SSH**: when you yank on the server, the text lands on your laptop's clipboard (OSC 52).
@@ -96,6 +98,23 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
 
 ## Install
 
+**Quick install** (macOS, Linux or a remote server; safe to re-run):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Kelvinyu1117/nvim-config/main/install.sh | sh
+```
+
+[`install.sh`](install.sh) does the following:
+- checks for Neovim 0.12+ and warns about missing tools
+- clones the repo to `~/nvim-config`, or pulls if it's already there
+- moves any existing `~/.config/nvim` to a timestamped `.bak`
+- links `~/.config/nvim` to the repo
+- installs the plugins at the versions in `lazy-lock.json`
+
+Running it again later is how you update. Then continue with step 3 below.
+
+**Manual install**
+
 1. Back up any existing config:
 
    ```bash
@@ -131,6 +150,7 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
 
 ## Update, reset, uninstall
 
+- **Update the config on a machine**: run `./install.sh` again (or `git pull`, then `:Lazy restore`).
 - **Update plugins**: `:Lazy` then `U` (update), or `:Lazy sync`. Commit the new `lazy-lock.json`.
   To roll back, check out an older lockfile and run `:Lazy restore`.
 - **Update tools**: `:Mason` then `U`.
@@ -142,6 +162,28 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
   ```
 
 - **Uninstall**: remove the symlink (`rm ~/.config/nvim`), run the reset command above, and restore your `.bak` folders.
+
+## One config, every machine
+
+Use the **same repo on every machine** (Mac, Linux desktop, remote servers): install once with
+`install.sh`, then keep machines in sync with git. You never reinstall by hand.
+
+| Shared through git (identical everywhere) | Per machine (never committed) |
+|---|---|
+| everything in `nvim/`: options, keymaps, plugins | Mason's tools (downloaded for that OS/CPU) in `~/.local/share/nvim/mason` |
+| `nvim/lazy-lock.json`: exact plugin versions | clangd's CUDA settings written by `:CudaClangdSetup` |
+| | undo history, sessions, shada in `~/.local/state/nvim` |
+
+The workflow: update plugins on one machine (`:Lazy update`), test, and commit `lazy-lock.json`. On
+the other machines, run `./install.sh` (or `git pull` + `:Lazy restore`) to get exactly the same versions.
+
+Anything that depends on the machine detects it at runtime:
+- clipboard over SSH
+- the `~/.cargo/bin` PATH entry
+- the multiplexer (Zellij/tmux)
+- CUDA (see [C/C++/CUDA](#languages))
+
+On a Mac without CUDA, CUDA support simply stays off. Nothing errors.
 
 ## How the config is organized
 
@@ -163,12 +205,15 @@ nvim/
 │   ├── completion.lua       blink.cmp
 │   ├── lsp.lua              Mason + language servers
 │   ├── formatting.lua       conform (format on save)
+│   ├── cpp.lua              C/C++/CUDA: cmake-tools, clangd_extensions, :CudaClangdSetup
 │   ├── lang.lua             Rust (rustaceanvim), Lean (lean.nvim)
 │   ├── git.lua              gitsigns, diffview
 │   ├── dap.lua              debugger
 │   └── test.lua             neotest, overseer
-└── after/lsp/               your tweaks to individual language servers
-    ├── clangd.lua  basedpyright.lua  ruff.lua  lua_ls.lua
+├── after/lsp/               your tweaks to individual language servers
+│   ├── clangd.lua  basedpyright.lua  ruff.lua  lua_ls.lua
+└── templates/
+    └── clangd-cuda.yaml     clangd rules for CUDA, installed by :CudaClangdSetup
 ```
 
 Every file is commented. Reading them top to bottom is a good way to learn how Neovim works.
@@ -188,6 +233,7 @@ Every file is commented. Reading them top to bottom is a good way to learn how N
 | Git | [gitsigns](https://github.com/lewis6991/gitsigns.nvim), [diffview](https://github.com/sindrets/diffview.nvim), lazygit | inline hunks, reviews, merges |
 | Debug | [nvim-dap](https://github.com/mfussenegger/nvim-dap) + dap-ui + virtual-text + dap-python | the standard DAP client |
 | Tests/tasks | [neotest](https://github.com/nvim-neotest/neotest), [overseer](https://github.com/stevearc/overseer.nvim) | pytest/gtest/cargo test; cmake/cargo/make tasks |
+| C/C++/CUDA | [clangd_extensions](https://github.com/p00f/clangd_extensions.nvim), [cmake-tools](https://github.com/Civitasv/cmake-tools.nvim) | AST/type hierarchy/header switch; configure-build-run-debug CMake targets, keeps clangd's compile_commands.json linked |
 | Rust | [rustaceanvim](https://github.com/mrcjkb/rustaceanvim) | richer than plain rust-analyzer (macros, runnables, debugging) |
 | Lean | [lean.nvim](https://github.com/Julian/lean.nvim) | infoview, unicode input |
 | Motion | [flash.nvim](https://github.com/folke/flash.nvim) | jump anywhere visible in 3 keystrokes |
@@ -202,7 +248,7 @@ Every file is commented. Reading them top to bottom is a good way to learn how N
 
 `<Space>` is the **leader** key. Press it and wait about half a second, and which-key shows every
 option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic letter:
-**f**ind, **s**earch, **c**ode, **g**it, **d**ebug, **t**est, **r**un, **x** lists, **b**uffer, **u**i, **q**uit, **w**indow.
+**f**ind, **s**earch, **c**ode, **g**it, **d**ebug, **t**est, **r**un, **m** cmake, **x** lists, **b**uffer, **u**i, **q**uit, **w**indow.
 
 ### The ones to learn first
 
@@ -287,6 +333,9 @@ Many of these are Neovim's own defaults (`grn`, `gra`, `grr`, `gri`, `grt`, `gO`
 | `[d` / `]d` | previous / next diagnostic |
 | `]]` / `[[` | next / previous use of the word under the cursor |
 | `<Space>ce` | Rust: expand macro |
+| `<Space>ch` | C/C++: switch header ↔ source |
+| `<Space>ci` / `cH` | C/C++: symbol info / type hierarchy |
+| `<Space>cA` / `cM` | C/C++: show AST / clangd memory usage |
 
 **Completion** (insert mode): `<C-n>`/`<C-p>` next/previous, `<C-y>` accept, `<C-e>` close,
 `<C-space>` open/toggle docs, `<Tab>`/`<S-Tab>` jump between snippet placeholders. These are Vim's
@@ -345,6 +394,17 @@ standard completion keys, so they work everywhere.
 
 **Tasks** (`<Space>r`): `<Space>rr` runs a task (cargo build, cmake, make, ...), `<Space>rt` toggles the task list, and `<Space>ra` acts on a task (restart, stop, ...).
 
+### CMake (`<Space>m`)
+
+| Key | Action | Key | Action |
+|---|---|---|---|
+| `<Space>mg` | generate (configure) + link compile_commands.json | `<Space>mt` | select build target |
+| `<Space>mb` | build | `<Space>ml` | select launch target |
+| `<Space>mr` | run | `<Space>mv` | select build type (Debug/Release) |
+| `<Space>md` | debug (codelldb) | `<Space>mp` | select configure preset |
+| `<Space>mT` | run tests (ctest) | `<Space>ma` | set launch arguments |
+| `<Space>mc` | clean | `<Space>ms` | stop build |
+
 ### Lists (`<Space>x`), UI toggles (`<Space>u`), sessions (`<Space>q`)
 
 | Key | Action | Key | Action |
@@ -360,15 +420,68 @@ standard completion keys, so they work everywhere.
 
 ## Languages
 
-**C / C++ / CUDA**: clangd provides completion, navigation and clang-tidy diagnostics.
-- clangd needs a `compile_commands.json` at the project root to know your include paths and flags:
-  - CMake: `cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && ln -s build/compile_commands.json .`
-  - Make or other build systems: `bear -- make`
-- `.cu` files are handled by clangd too (it understands CUDA), and the CUDA treesitter parser is installed.
-- Formatting runs **only if the project has a `.clang-format` file**, so you never reformat a codebase
-  that doesn't use clang-format. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
-- Debugging: `<Space>dc` → "Launch executable" (build with `-g`). For CUDA kernels (device code) use
-  NVIDIA's `cuda-gdb` in a terminal; codelldb handles host code.
+**C / C++ / CUDA (CMake)**: clangd is the language server for all three, including CUDA (there's no
+separate "CUDA LSP"). clangd_extensions adds extra views, and cmake-tools drives CMake.
+
+1. **Open the project root** (the folder with the top-level `CMakeLists.txt`) and press `<Space>mg`. This
+   configures into `build/<BuildType>/` and links `compile_commands.json` into the project root, which is
+   how clangd learns your include paths and flags. It regenerates automatically when you save a
+   `CMakeLists.txt`.
+2. **Build, run, debug**:
+   - `<Space>mb` builds, `<Space>mr` runs, `<Space>md` debugs the selected target in codelldb, and `<Space>mT` runs `ctest`.
+   - Pick the target with `<Space>mt` (build) or `<Space>ml` (launch), and Debug/Release with `<Space>mv`.
+   - If you use `CMakePresets.json`, pick a preset with `<Space>mp`.
+   - Build output and errors appear in the task list (`<Space>rt`).
+3. **CUDA, once per machine**: run `:CudaClangdSetup`, then restart Neovim.
+   - Without this step, every `.cu` file is full of "unknown argument" errors. CMake writes nvcc-only
+     flags (`--generate-code=…`, `-Xcompiler`, `--expt-relaxed-constexpr`, …) into
+     `compile_commands.json`, and clangd doesn't know them.
+   - The command reads your GPU's compute capability from `nvidia-smi` (for example 8.9 → `sm_89`).
+   - It writes [`nvim/templates/clangd-cuda.yaml`](nvim/templates/clangd-cuda.yaml) into clangd's user config
+     (`~/.config/clangd/config.yaml`). That file strips the nvcc flags, sets the GPU arch, and makes `.cuh`
+     headers parse as CUDA. The rules only apply to `.cu`/`.cuh` files.
+   - If you already have that file, merge the template by hand, or use `:CudaClangdSetup!` to replace it
+     (a `.bak` copy is kept).
+   - The toolkit is found automatically in `$CUDA_PATH`, `$CUDA_HOME`, next to `nvcc`, `/usr/local/cuda`
+     or `/opt/cuda`. You can also pass a folder: `:CudaClangdSetup /path/to/cuda`.
+4. **Navigate**:
+   - All the usual LSP keys work, including on `__global__` kernels (`gd`, `grr`, `K`, `grn`, `gra`).
+   - C++ extras: `<Space>ch` switches between header and source, `<Space>ci` shows symbol info,
+     `<Space>cH` shows the type hierarchy, `<Space>cA` shows the AST (also works on a selection), and
+     `<Space>cM` shows clangd's memory usage.
+
+A good CMake starting point for CUDA:
+
+```cmake
+cmake_minimum_required(VERSION 3.24)
+project(app LANGUAGES CXX CUDA)
+set(CMAKE_CUDA_ARCHITECTURES native)   # build for the GPU in this machine
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CUDA_STANDARD 20)
+add_executable(app main.cu)
+```
+
+- **Formatting** runs **only if the project has a `.clang-format` file**, so you never reformat a
+  codebase that doesn't use clang-format. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
+- **Debugging**: codelldb debugs host code (build type Debug, then `<Space>md` or `<Space>dc`). For
+  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<C-/>`).
+  Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
+- **Tests**: GoogleTest tests run through neotest (`<Space>tt`), or all of them via ctest (`<Space>mT`).
+- **Not a CMake project?** Generate `compile_commands.json` with `bear -- make`.
+- **Mac / machines without CUDA**: C and C++ work normally, but there's no CUDA toolkit to build,
+  run or debug with.
+  - **Recommended**: do CUDA work on the GPU machine over SSH (see
+    [Remote development](#remote-development-and-zellij)), where everything works.
+  - On the Mac, `:CudaClangdSetup` detects that CUDA is missing, explains the options, and writes nothing.
+  - To read and write `.cu` files offline on the Mac, copy the headers once and point clangd at them:
+
+    ```bash
+    rsync -a <gpu-host>:/usr/local/cuda/include/ ~/.local/cuda/include/
+    ```
+
+    Then run `:CudaClangdSetup ~/.local/cuda` in nvim. This gets you completion, hover and
+    go-to-definition for the CUDA API. CMake can't configure a CUDA project without `nvcc`, though, so
+    your project's own include paths are guessed. For real work, use the GPU machine.
 
 **Rust**: install rust-analyzer with `rustup component add rust-analyzer`. rustaceanvim sets it up with
 clippy checks. Useful commands: `:RustLsp runnables`, `:RustLsp debuggables`, `:RustLsp explainError`,
@@ -412,6 +525,15 @@ it automatically), then run `:TSInstall <language>` for highlighting.
 - **Profile startup**: `:Lazy profile`.
 
 ## Remote development and Zellij
+
+**Should Neovim run on the server? Yes.**
+- Language servers, compilers, the CUDA toolkit and the debugger have to run where the code and the
+  GPU are. So run nvim *on* the server over SSH, with the same config installed there by `install.sh`
+  (see [One config, every machine](#one-config-every-machine)).
+- Editing remote files from your laptop's nvim (sshfs, `scp://`, remote-editing plugins) doesn't work
+  well for C++/CUDA: your laptop's clangd can't see the server's headers, toolkit or build.
+- Neovim's `--remote-ui` (editor on the server, UI on the laptop) still needs the config on the server,
+  so it doesn't save you anything over plain SSH.
 
 **Recommended setup**: run a terminal on your laptop (Ghostty, WezTerm, Kitty, iTerm2 or Windows
 Terminal) → `ssh devbox` → **Zellij on the server** → `nvim`. When your SSH connection drops, the
@@ -541,7 +663,8 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | Boxes/question marks instead of icons | Install a Nerd Font and select it in your terminal |
 | Something errors on start | `:messages`, `:checkhealth`, `:Lazy` (shows plugin errors and logs) |
 | LSP not attaching / wrong server | `:checkhealth vim.lsp`, `:Mason` (is it installed?), `:lua =vim.lsp.get_clients()` |
-| clangd can't find headers | generate `compile_commands.json` (see [C/C++](#languages)) |
+| clangd can't find headers | `<Space>mg` in a CMake project (or `bear -- make`) to create `compile_commands.json` |
+| "Unknown argument" errors in `.cu` files | run `:CudaClangdSetup`, then restart Neovim |
 | No syntax colors | `:checkhealth nvim-treesitter`; is `tree-sitter` installed (`:Mason`)? Restart after the first install |
 | Format on save does nothing | `:ConformInfo`; for C/C++ add a `.clang-format`; check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
@@ -562,9 +685,6 @@ Not installed, to keep things lean. Add them once the basics feel natural.
   [grapple.nvim](https://github.com/cbochs/grapple.nvim), for instant jumps between 4–5 key files.
 - **Search & replace across files**: [grug-far.nvim](https://github.com/MagicDuck/grug-far.nvim).
 - **Markdown**: [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim).
-- **C++ extras**:
-  - [clangd_extensions.nvim](https://github.com/p00f/clangd_extensions.nvim): AST view, type hierarchy
-  - [cmake-tools.nvim](https://github.com/Civitasv/cmake-tools.nvim)
 - **UI**: [noice.nvim](https://github.com/folke/noice.nvim), which replaces the command line and messages UI.
 - **Built-in plugin manager**: Neovim 0.12 ships `vim.pack`. lazy.nvim is kept here for lazy-loading
   and the lockfile UI, but `vim.pack` is worth watching.

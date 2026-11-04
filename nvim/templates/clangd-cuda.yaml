@@ -1,0 +1,42 @@
+# clangd settings for CUDA files, installed by `:CudaClangdSetup` into clangd's user config.
+# clangd *is* the CUDA language server; these rules teach it to read the compile commands that
+# CMake writes for nvcc. They only apply to .cu/.cuh files; plain C/C++ is untouched.
+# Reference: https://clangd.llvm.org/config
+If:
+  PathMatch: [.*\.cu, .*\.cuh]
+CompileFlags:
+  # compile_commands.json names nvcc as the compiler; parse with clang's CUDA frontend instead.
+  Compiler: clang++
+  Add:
+    - --cuda-gpu-arch=sm_XX # your GPU (nvidia-smi --query-gpu=compute_cap): 8.9 -> sm_89
+    - --no-cuda-version-check # accept CUDA toolkits newer than clangd's clang
+    - -nocudalib # clangd only parses code, it never links libdevice (works with headers-only copies)
+    # @EXTRA_FLAGS@ <- :CudaClangdSetup puts --cuda-path=<toolkit or headers folder> here
+  Remove:
+    # nvcc-only flags clang doesn't understand (a trailing * matches any suffix)
+    - -forward-unknown-to-host-compiler
+    - --generate-code*
+    - -gencode*
+    - -arch*
+    - --gpu-architecture*
+    - -rdc*
+    - --relocatable-device-code*
+    - -Xcompiler*
+    - --compiler-options*
+    - -Xcudafe*
+    - -ccbin*
+    - --compiler-bindir*
+    - --options-file*
+    - --expt-relaxed-constexpr
+    - --expt-extended-lambda
+    - --extended-lambda
+    - --use_fast_math
+    - -lineinfo
+    - --keep*
+    - -x # nvcc's `-x cu`; clang picks CUDA from the .cu extension
+---
+# Headers have no compile command of their own and clang doesn't know the .cuh extension.
+If:
+  PathMatch: .*\.cuh
+CompileFlags:
+  Add: [-xcuda]
