@@ -10,7 +10,8 @@ CompileFlags:
   Add:
     - --cuda-gpu-arch=sm_XX # your GPU (nvidia-smi --query-gpu=compute_cap): 8.9 -> sm_89
     - --no-cuda-version-check # accept CUDA toolkits newer than clangd's clang
-    # - --cuda-path=/usr/local/cuda # uncomment if the toolkit lives somewhere else
+    - -nocudalib # clangd only parses code, it never links libdevice (works with headers-only copies)
+    # @EXTRA_FLAGS@ <- :CudaClangdSetup puts --cuda-path=<toolkit or headers folder> here
   Remove:
     # nvcc-only flags clang doesn't understand (a trailing * matches any suffix)
     - -forward-unknown-to-host-compiler

@@ -12,6 +12,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [Requirements](#requirements)
 - [Install](#install)
 - [Update, reset, uninstall](#update-reset-uninstall)
+- [One config, every machine](#one-config-every-machine)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
 - [Keymaps](#keymaps)
@@ -97,6 +98,23 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
 
 ## Install
 
+**Quick install** (macOS, Linux or a remote server; safe to re-run):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Kelvinyu1117/nvim-config/main/install.sh | sh
+```
+
+[`install.sh`](install.sh) does the following:
+- checks for Neovim 0.12+ and warns about missing tools
+- clones the repo to `~/nvim-config`, or pulls if it's already there
+- moves any existing `~/.config/nvim` to a timestamped `.bak`
+- links `~/.config/nvim` to the repo
+- installs the plugins at the versions in `lazy-lock.json`
+
+Running it again later is how you update. Then continue with step 3 below.
+
+**Manual install**
+
 1. Back up any existing config:
 
    ```bash
@@ -132,6 +150,7 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
 
 ## Update, reset, uninstall
 
+- **Update the config on a machine**: run `./install.sh` again (or `git pull`, then `:Lazy restore`).
 - **Update plugins**: `:Lazy` then `U` (update), or `:Lazy sync`. Commit the new `lazy-lock.json`.
   To roll back, check out an older lockfile and run `:Lazy restore`.
 - **Update tools**: `:Mason` then `U`.
@@ -143,6 +162,28 @@ Zig serves as the C compiler for treesitter. The config folder on Windows is `%L
   ```
 
 - **Uninstall**: remove the symlink (`rm ~/.config/nvim`), run the reset command above, and restore your `.bak` folders.
+
+## One config, every machine
+
+Use the **same repo on every machine** (Mac, Linux desktop, remote servers): install once with
+`install.sh`, then keep machines in sync with git. You never reinstall by hand.
+
+| Shared through git (identical everywhere) | Per machine (never committed) |
+|---|---|
+| everything in `nvim/`: options, keymaps, plugins | Mason's tools (downloaded for that OS/CPU) in `~/.local/share/nvim/mason` |
+| `nvim/lazy-lock.json`: exact plugin versions | clangd's CUDA settings written by `:CudaClangdSetup` |
+| | undo history, sessions, shada in `~/.local/state/nvim` |
+
+The workflow: update plugins on one machine (`:Lazy update`), test, and commit `lazy-lock.json`. On
+the other machines, run `./install.sh` (or `git pull` + `:Lazy restore`) to get exactly the same versions.
+
+Anything that depends on the machine detects it at runtime:
+- clipboard over SSH
+- the `~/.cargo/bin` PATH entry
+- the multiplexer (Zellij/tmux)
+- CUDA (see [C/C++/CUDA](#languages))
+
+On a Mac without CUDA, CUDA support simply stays off. Nothing errors.
 
 ## How the config is organized
 
@@ -401,7 +442,8 @@ separate "CUDA LSP"). clangd_extensions adds extra views, and cmake-tools drives
      headers parse as CUDA. The rules only apply to `.cu`/`.cuh` files.
    - If you already have that file, merge the template by hand, or use `:CudaClangdSetup!` to replace it
      (a `.bak` copy is kept).
-   - If your toolkit isn't in `/usr/local/cuda`, uncomment the `--cuda-path` line in the file.
+   - The toolkit is found automatically in `$CUDA_PATH`, `$CUDA_HOME`, next to `nvcc`, `/usr/local/cuda`
+     or `/opt/cuda`. You can also pass a folder: `:CudaClangdSetup /path/to/cuda`.
 4. **Navigate**:
    - All the usual LSP keys work, including on `__global__` kernels (`gd`, `grr`, `K`, `grn`, `gra`).
    - C++ extras: `<Space>ch` switches between header and source, `<Space>ci` shows symbol info,
@@ -426,6 +468,20 @@ add_executable(app main.cu)
   Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
 - **Tests**: GoogleTest tests run through neotest (`<Space>tt`), or all of them via ctest (`<Space>mT`).
 - **Not a CMake project?** Generate `compile_commands.json` with `bear -- make`.
+- **Mac / machines without CUDA**: C and C++ work normally, but there's no CUDA toolkit to build,
+  run or debug with.
+  - **Recommended**: do CUDA work on the GPU machine over SSH (see
+    [Remote development](#remote-development-and-zellij)), where everything works.
+  - On the Mac, `:CudaClangdSetup` detects that CUDA is missing, explains the options, and writes nothing.
+  - To read and write `.cu` files offline on the Mac, copy the headers once and point clangd at them:
+
+    ```bash
+    rsync -a <gpu-host>:/usr/local/cuda/include/ ~/.local/cuda/include/
+    ```
+
+    Then run `:CudaClangdSetup ~/.local/cuda` in nvim. This gets you completion, hover and
+    go-to-definition for the CUDA API. CMake can't configure a CUDA project without `nvcc`, though, so
+    your project's own include paths are guessed. For real work, use the GPU machine.
 
 **Rust**: install rust-analyzer with `rustup component add rust-analyzer`. rustaceanvim sets it up with
 clippy checks. Useful commands: `:RustLsp runnables`, `:RustLsp debuggables`, `:RustLsp explainError`,
@@ -469,6 +525,15 @@ it automatically), then run `:TSInstall <language>` for highlighting.
 - **Profile startup**: `:Lazy profile`.
 
 ## Remote development and Zellij
+
+**Should Neovim run on the server? Yes.**
+- Language servers, compilers, the CUDA toolkit and the debugger have to run where the code and the
+  GPU are. So run nvim *on* the server over SSH, with the same config installed there by `install.sh`
+  (see [One config, every machine](#one-config-every-machine)).
+- Editing remote files from your laptop's nvim (sshfs, `scp://`, remote-editing plugins) doesn't work
+  well for C++/CUDA: your laptop's clangd can't see the server's headers, toolkit or build.
+- Neovim's `--remote-ui` (editor on the server, UI on the laptop) still needs the config on the server,
+  so it doesn't save you anything over plain SSH.
 
 **Recommended setup**: run a terminal on your laptop (Ghostty, WezTerm, Kitty, iTerm2 or Windows
 Terminal) → `ssh devbox` → **Zellij on the server** → `nvim`. When your SSH connection drops, the
