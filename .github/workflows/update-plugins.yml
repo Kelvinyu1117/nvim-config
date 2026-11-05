@@ -1,0 +1,121 @@
+# Weekly plugin updates, tested before you see them.
+#
+#   1. update  - bump every plugin (lazy.nvim) and write a changelog with compare links
+#   2. smoke   - boot the config with the new lockfile on Ubuntu AND macOS (tests/smoke.lua)
+#   3. pr      - open/refresh a PR on branch bot/plugin-updates; you review and merge
+#
+# One-time repo setting: Settings -> Actions -> General -> Workflow permissions ->
+# "Allow GitHub Actions to create and approve pull requests".
+# Run it on demand from the Actions tab ("Run workflow").
+name: Update plugins
+
+on:
+  schedule:
+    - cron: "23 4 * * 1" # Mondays 04:23 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-plugins
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.summary.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Link config
+        run: mkdir -p ~/.config && ln -s "$GITHUB_WORKSPACE/nvim" ~/.config/nvim
+
+      - name: Update plugins
+        run: |
+          if [ -f nvim/lazy-lock.json ]; then
+            cp nvim/lazy-lock.json "$RUNNER_TEMP/old-lock.json"
+            nvim --headless "+Lazy! update" +qa
+          else
+            echo '{}' > "$RUNNER_TEMP/old-lock.json"
+            nvim --headless "+Lazy! sync" +qa
+          fi
+
+      - name: Summarize changes
+        id: summary
+        run: |
+          OLD_LOCK="$RUNNER_TEMP/old-lock.json" NEW_LOCK=nvim/lazy-lock.json OUT=pr-body.md \
+            nvim --headless -c "luafile tests/lockfile_diff.lua"
+          cat pr-body.md
+          if git ls-files --error-unmatch nvim/lazy-lock.json >/dev/null 2>&1 \
+             && git diff --quiet -- nvim/lazy-lock.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: steps.summary.outputs.changed == 'true'
+        with:
+          name: lockfile
+          path: |
+            nvim/lazy-lock.json
+            pr-body.md
+
+  smoke:
+    needs: update
+    if: needs.update.outputs.changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: lockfile
+
+      - uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Link config
+        run: mkdir -p ~/.config && ln -s "$GITHUB_WORKSPACE/nvim" ~/.config/nvim
+
+      - name: Install plugins from the new lockfile
+        run: nvim --headless "+Lazy! restore" +qa
+
+      - name: Smoke test
+        run: nvim --headless -c "luafile tests/smoke.lua"
+
+  pr:
+    needs: smoke
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: lockfile
+
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/plugin-updates
+          delete-branch: true
+          add-paths: nvim/lazy-lock.json
+          commit-message: "chore: update Neovim plugins"
+          title: "chore: update Neovim plugins"
+          body-path: pr-body.md
+          labels: dependencies
