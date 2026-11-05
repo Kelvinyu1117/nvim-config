@@ -12,6 +12,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [Requirements](#requirements)
 - [Install](#install)
 - [Update, reset, uninstall](#update-reset-uninstall)
+- [Automatic plugin updates](#automatic-plugin-updates)
 - [One config, every machine](#one-config-every-machine)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
@@ -151,7 +152,8 @@ Running it again later is how you update. Then continue with step 3 below.
 ## Update, reset, uninstall
 
 - **Update the config on a machine**: run `./install.sh` again (or `git pull`, then `:Lazy restore`).
-- **Update plugins**: `:Lazy` then `U` (update), or `:Lazy sync`. Commit the new `lazy-lock.json`.
+- **Update plugins**: happens automatically every week, see [Automatic plugin updates](#automatic-plugin-updates).
+  You can also update by hand: `:Lazy` then `U`, then commit the new `lazy-lock.json`.
   To roll back, check out an older lockfile and run `:Lazy restore`.
 - **Update tools**: `:Mason` then `U`.
 - **Update parsers**: `:TSUpdate`.
@@ -162,6 +164,31 @@ Running it again later is how you update. Then continue with step 3 below.
   ```
 
 - **Uninstall**: remove the symlink (`rm ~/.config/nvim`), run the reset command above, and restore your `.bak` folders.
+
+## Automatic plugin updates
+
+Every Monday, the [Update plugins](.github/workflows/update-plugins.yml) GitHub Actions workflow:
+
+1. updates every plugin and writes a changelog with a "changes" link per plugin,
+2. **boots the config with the new versions on Ubuntu and macOS** ([`tests/smoke.lua`](tests/smoke.lua)):
+   every plugin must load and a file in each language must open without Lua errors,
+3. opens (or refreshes) a pull request, **"chore: update Neovim plugins"**, that changes only `nvim/lazy-lock.json`.
+
+You read the changelog, merge, and run `./install.sh` on each machine. If a release breaks something,
+the smoke test fails, no PR is opened, and your setup stays on the versions that work.
+
+- **One-time setup**: in the repo, go to *Settings → Actions → General → Workflow permissions* and tick
+  **"Allow GitHub Actions to create and approve pull requests"**.
+- **Run it now**: go to the *Actions* tab, choose *Update plugins*, then *Run workflow*. The first run
+  also creates `lazy-lock.json` if you haven't committed one yet.
+- **Run the smoke test locally**, from the repo root:
+
+  ```bash
+  nvim --headless -c "luafile tests/smoke.lua"
+  ```
+
+- **Set up your machines with the [dotfiles](https://github.com/Kelvinyu1117/dotfiles) repo**: its
+  installer runs this repo's `install.sh`, so one command sets up shell, terminal, git, Zellij and Neovim.
 
 ## One config, every machine
 
