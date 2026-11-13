@@ -78,13 +78,18 @@ else
 fi
 
 # 4. Plugins -------------------------------------------------------------------
+# Neovim can exit successfully even after init.lua or an Ex command fails.
+# Check errors before Lazy (which may not have loaded) and again before quitting.
+check_errors='lua if vim.v.errmsg ~= "" then vim.api.nvim_err_writeln(vim.v.errmsg); vim.cmd("cquit 1") end'
 if [ -f "$REPO/nvim/lazy-lock.json" ]; then
   info "Installing plugins at the versions pinned in lazy-lock.json"
-  nvim --headless "+Lazy! restore" +qa
+  plugin_action=restore
 else
   info "Installing plugins (no lockfile yet)"
-  nvim --headless "+Lazy! sync" +qa
+  plugin_action=sync
 fi
+nvim --headless -c "$check_errors" "+Lazy! $plugin_action" -c "$check_errors" +qa ||
+  die "plugin installation failed; fix the Neovim errors above and re-run this script"
 
 cat <<EOF
 

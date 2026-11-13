@@ -13,7 +13,8 @@ opt.winborder = "rounded" -- borders on all floating windows (readable with tran
 opt.pumheight = 12 -- max items in the completion menu
 opt.list = true
 opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
-opt.fillchars = { eob = " ", fold = " ", foldopen = "", foldclose = "", foldsep = " " }
+-- Each fill character must occupy one cell; use spaces to hide the fold markers.
+opt.fillchars = { eob = " ", fold = " ", foldopen = " ", foldclose = " ", foldsep = " " }
 opt.wrap = false
 opt.linebreak = true -- when wrap is on, break at word boundaries
 opt.scrolloff = 8
