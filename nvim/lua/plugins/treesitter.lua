@@ -1,6 +1,6 @@
 -- Treesitter: syntax-aware highlighting, indentation, folding and text objects.
 -- Uses the `main` branch of nvim-treesitter. It needs the `tree-sitter` CLI (installed by Mason,
--- see lsp.lua) and a C compiler. On the very first launch, restart Neovim once after Mason finishes.
+-- see lsp.lua) and a C compiler. Parser installation waits for the CLI to become available.
 -- Install more languages any time with `:TSInstall <lang>`.
 local parsers = {
   "bash", "c", "cmake", "cpp", "cuda", "diff", "gitcommit", "json", "lua", "luadoc",
@@ -13,10 +13,30 @@ return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
     lazy = false, -- the main branch does not support lazy-loading
-    dependencies = { "mason-org/mason.nvim" }, -- tree-sitter CLI on PATH
-    build = ":TSUpdate",
+    dependencies = { "mason-org/mason.nvim" }, -- adds Mason's bin directory to PATH
+    build = function()
+      -- Lazy's build hook can run before Mason has downloaded the CLI on a fresh machine.
+      if vim.fn.executable("tree-sitter") == 1 then
+        vim.cmd("TSUpdate")
+      end
+    end,
     config = function()
-      require("nvim-treesitter").install(parsers) -- async, no-op if already installed
+      local function install_parsers()
+        if vim.fn.executable("tree-sitter") == 0 then
+          return false
+        end
+        require("nvim-treesitter").install(parsers) -- async, no-op if already installed
+        return true
+      end
+
+      if not install_parsers() then
+        -- Covers both mason-tool-installer's startup download and :MasonInstall.
+        require("mason-registry"):on("package:install:success", function(pkg)
+          if pkg.name == "tree-sitter-cli" then
+            vim.schedule(install_parsers)
+          end
+        end)
+      end
 
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("user_treesitter", { clear = true }),

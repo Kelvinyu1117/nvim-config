@@ -692,7 +692,7 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | LSP not attaching / wrong server | `:checkhealth vim.lsp`, `:Mason` (is it installed?), `:lua =vim.lsp.get_clients()` |
 | clangd can't find headers | `<Space>mg` in a CMake project (or `bear -- make`) to create `compile_commands.json` |
 | "Unknown argument" errors in `.cu` files | run `:CudaClangdSetup`, then restart Neovim |
-| No syntax colors | `:checkhealth nvim-treesitter`; is `tree-sitter` installed (`:Mason`)? Restart after the first install |
+| No syntax colors / missing `tree-sitter` | Run `:MasonInstall tree-sitter-cli` and wait for it to finish. Parser installation waits for the CLI; reopen the file or restart after the first install. Check `:checkhealth nvim-treesitter` if it still fails |
 | Format on save does nothing | `:ConformInfo`; for C/C++ add a `.clang-format`; check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
 | `<A-h>` types a symbol on macOS | set Option as Alt in your terminal |
