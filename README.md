@@ -581,7 +581,12 @@ To paste text from your laptop into nvim, use your terminal's paste shortcut (`C
 
 ### Zellij
 
-Install it on the server (`cargo install --locked zellij`, or a binary from the
+**Using [my dotfiles](https://github.com/Kelvinyu1117/dotfiles)?** All of this is already set up,
+plus one Zellij session per project (`dev`) and `Alt` keys for Zellij that don't collide with Neovim.
+See its [WORKFLOW.md](https://github.com/Kelvinyu1117/dotfiles/blob/main/WORKFLOW.md). Neovim itself
+maps no `Alt` keys besides `Alt h/j/k/l`, so `Alt` is free for the multiplexer.
+
+Otherwise, install it on the server (`cargo install --locked zellij`, or a binary from the
 [releases page](https://github.com/zellij-org/zellij/releases)). Then:
 
 1. **Avoid key clashes with Neovim**: choose the **"Unlock-First (non-colliding)"** keybinding preset.
