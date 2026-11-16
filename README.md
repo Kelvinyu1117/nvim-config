@@ -39,7 +39,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - **Tests and tasks**: run the nearest test (neotest) and build/run with cargo/cmake/make (overseer).
 - **Seamless splits**: `Ctrl-h/j/k/l` moves between Neovim splits *and* Zellij/tmux panes.
 - **Clipboard over SSH**: when you yank on the server, the text lands on your laptop's clipboard (OSC 52).
-- **Transparent tokyonight theme**, with catppuccin and onedark one keystroke away (`<Space>uC`).
+- **Transparent One Dark Pro theme** (no italics), with tokyonight and catppuccin one keystroke away (`<Space>uC`).
 - **Discoverability**: press `<Space>` and wait, and a menu shows every command.
 
 ## Requirements
@@ -223,7 +223,7 @@ nvim/
 │   ├── keymaps.lua          global keymaps (save, splits, buffers, moving lines...)
 │   └── autocmds.lua         automatic behaviour + LSP keymaps when a server attaches
 ├── lua/plugins/             one file per area, each returns lazy.nvim plugin specs
-│   ├── colorscheme.lua      tokyonight (default), catppuccin, onedarkpro; transparency switch
+│   ├── colorscheme.lua      onedarkpro (default), tokyonight, catppuccin; transparency + italic switches
 │   ├── ui.lua               statusline, which-key menu, breadcrumbs, LSP progress
 │   ├── snacks.lua           explorer, lazygit, terminal, notifications, dashboard, toggles
 │   ├── fzf.lua              all fuzzy pickers
@@ -269,7 +269,7 @@ Every file is commented. Reading them top to bottom is a good way to learn how N
 | Sessions | [persistence.nvim](https://github.com/folke/persistence.nvim) | reopen a project where you left off |
 | Splits | [smart-splits.nvim](https://github.com/mrjones2014/smart-splits.nvim) | one set of keys for nvim splits + Zellij/tmux/WezTerm/Kitty panes |
 | UI | [lualine](https://github.com/nvim-lualine/lualine.nvim), [which-key](https://github.com/folke/which-key.nvim), [dropbar](https://github.com/Bekaboo/dropbar.nvim), [fidget](https://github.com/j-hui/fidget.nvim) | statusline, key menu, breadcrumbs, LSP progress |
-| Theme | [tokyonight](https://github.com/folke/tokyonight.nvim), [catppuccin](https://github.com/catppuccin/nvim), [onedarkpro](https://github.com/olimorris/onedarkpro.nvim) | switch live with `<Space>uC` |
+| Theme | [onedarkpro](https://github.com/olimorris/onedarkpro.nvim), [tokyonight](https://github.com/folke/tokyonight.nvim), [catppuccin](https://github.com/catppuccin/nvim) | switch live with `<Space>uC` |
 
 ## Keymaps
 
