@@ -3,7 +3,7 @@
 --   nvim --headless -c "luafile tests/smoke.lua"     (from the repo root, config linked to ~/.config/nvim)
 --
 -- Exits 1 on failure. Only Lua errors count: missing external tools (rust-analyzer, lean, Mason
--- downloads that haven't finished) are expected on a fresh CI machine and are ignored.
+-- downloads that haven't finished) are expected on a fresh machine and are ignored.
 
 local root = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h:h")
 local failures = {}
