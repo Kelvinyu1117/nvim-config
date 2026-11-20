@@ -1,6 +1,7 @@
 -- fzf-lua: the fuzzy finder for everything (files, grep, symbols, help, git, ...).
 -- Uses the external `fzf` binary, so it stays fast in huge repos. Needs: fzf, ripgrep, fd.
 -- Inside a picker: <C-q> sends all results to the quickfix list, <F1> shows help.
+-- Grep uses ripgrep (`rg`); see the grep options below.
 local function fzf(cmd, opts)
   return function()
     require("fzf-lua")[cmd](opts or {})
@@ -11,11 +12,23 @@ return {
   "ibhagwan/fzf-lua",
   cmd = "FzfLua",
   dependencies = { "nvim-tree/nvim-web-devicons" },
-  opts = {
-    winopts = { height = 0.85, width = 0.85, preview = { layout = "flex" } },
-    files = { cwd_prompt = false },
-    keymap = { fzf = { ["ctrl-q"] = "select-all+accept" } },
-  },
+  opts = function()
+    local actions = require("fzf-lua.actions")
+    return {
+      winopts = { height = 0.85, width = 0.85, preview = { layout = "flex" } },
+      files = { cwd_prompt = false },
+      keymap = { fzf = { ["ctrl-q"] = "select-all+accept" } },
+      -- Grep runs ripgrep: smart case, regex, skips .gitignore'd and hidden files.
+      grep = {
+        rg_glob = true, -- `foo -- *.lua` searches only matching files (`-- !tests/**` excludes)
+        actions = {
+          ["alt-i"] = { actions.toggle_ignore }, -- include .gitignore'd files
+          ["alt-h"] = { actions.toggle_hidden }, -- include hidden files
+          ["ctrl-g"] = { actions.grep_lgrep }, -- switch live regex <-> fuzzy filter
+        },
+      },
+    }
+  end,
   config = function(_, opts)
     require("fzf-lua").setup(opts)
     require("fzf-lua").register_ui_select() -- code actions etc. use fzf-lua

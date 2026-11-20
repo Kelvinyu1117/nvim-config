@@ -304,7 +304,7 @@ option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic lett
 | `<C-o>` / `<C-i>` | jump back / forward (after `gd`, searches, ...) |
 | `<C-s>` | save |
 | `s` + 2 chars + label | jump anywhere on screen |
-| `<Space>ft` or `<C-/>` | toggle a terminal (see [Terminal](#terminal)) |
+| `<Space>ft` | open / hide a terminal (see [Terminal](#terminal)) |
 | `<Space>gg` | lazygit |
 
 ### General
@@ -352,27 +352,39 @@ open in a vertical/horizontal split, `<C-q>` to send all results to the quickfix
 | | | `<Space>sc` / `sC` | command history / commands |
 | | | `<Space>sq` / `st` | quickfix / TODOs |
 
+**Grep uses [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg`)**: `<Space>/` and `<Space>sg` run it
+live as you type (through fzf-lua), and so does Vim's own `:grep` (set in `options.lua`). That means:
+- **Smart case**: `foo` matches `Foo` and `FOO`; typing a capital (`Foo`) makes it case-sensitive.
+- **Files in `.gitignore` and hidden files are skipped** (`node_modules`, `build/`, `.git`, ...). Inside
+  the picker, `<A-i>` toggles ignored files and `<A-h>` hidden ones.
+- **The query is a regex**: `foo.*bar`, `\bword\b`, `fn \w+\(`. Escape `(`, `.`, `[` for a literal match.
+- **Only some files**: add `--` and a glob, e.g. `TODO -- *.cpp` or `init -- !tests/**`.
+- **Fuzzy-filter the results**: `<C-g>` switches between live regex search and fuzzy filtering of what was found.
+- **Search and replace across files**: `<C-q>` sends the results to the quickfix list, then
+  `:cdo s/old/new/g | update`.
+- `:grep foo` fills the quickfix list directly (open it with `<Space>xq`); `:grep foo -t py` limits it to Python files.
+
 ### Terminal
 
 | Key | Where | Action |
 |---|---|---|
-| `<Space>ft` | normal | open / hide the terminal (works in every terminal emulator) |
-| `<C-/>` | normal or inside the terminal | same, one keystroke, if your terminal sends it (see below) |
-| `<Esc><Esc>` | inside the terminal | leave terminal mode (a single `<Esc>` still reaches the shell, fzf, ...) |
-| `<C-\><C-n>` | inside the terminal | leave terminal mode (built in, always works) |
-| `q` | terminal, normal mode | hide the terminal; `i` or `a` types into it again |
-| `2<Space>ft` | normal | a second terminal (any count gives a separate one) |
-| `exit` / `<C-d>` | in the shell | close the terminal for good |
+| `<Space>ft` | normal mode | open the terminal; press again to hide it |
+| `<Esc><Esc>` | typing in the terminal | back to normal mode (a single `<Esc>` still goes to the shell, fzf, ...) |
+| `q` | terminal, normal mode | hide the terminal (the shell keeps running; `<Space>ft` brings it back) |
+| `i` | terminal, normal mode | type into the shell again |
+| `2<Space>ft` | normal mode | a second, separate terminal (any count works) |
+| `exit` | in the shell | close the terminal for good |
 
-The terminal is a normal buffer: hiding it keeps the shell running. In normal mode inside it you can
-scroll, search with `/`, and copy with `v`…`y`; `p` sends a paste to the shell. To move to another
-split with `<C-h/j/k/l>`, leave terminal mode first (`<Esc><Esc>`).
+So from inside the terminal, **`<Esc><Esc>` then `q`** hides it. In normal mode inside the terminal you
+can scroll, search with `/` and copy with `v`…`y`; `p` pastes into the shell. To jump to another split
+with `<C-h/j/k/l>`, press `<Esc><Esc>` first. `<C-\><C-n>` (built in) also leaves terminal mode.
 
-**`<C-/>` does nothing?** Use `<Space>ft`. Some terminals never send `Ctrl-/` to programs: macOS
-Terminal.app sends nothing, and the VS Code and JetBrains terminals use it for "toggle comment".
-Others send it as `<C-_>`, which is mapped too. To check what yours sends, run `:echo keytrans(getcharstr())`
-and press `Ctrl-/`: `<C-/>` or `<C-_>` means it arrives; if it waits or prints something else, your
-terminal or multiplexer (Zellij, tmux) is catching it.
+**Optional one-key toggle: `<C-/>`.** It works in normal mode *and* while typing in the terminal, but
+only if your terminal emulator passes `Ctrl-/` through, and many don't. If `Ctrl-/` opens a `/` search
+prompt (or types `/` into the shell), your terminal dropped the Ctrl; if it does nothing, the terminal
+or multiplexer swallowed it (VS Code and JetBrains use it for "toggle comment"). Either way, use
+`<Space>ft`. To test: run `:echo keytrans(getcharstr())` and press `Ctrl-/`. `<C-/>` or `<C-_>` means it
+works; `/` means the Ctrl was dropped.
 
 ### Code & LSP
 
@@ -812,7 +824,7 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | Format on save does nothing | for C/C++ add a `.clang-format` (`<Space>cf` works without one); check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
 | `<A-h>` types a symbol on macOS | set Option as Alt in your terminal |
-| `<C-/>` does nothing | use `<Space>ft`; your terminal doesn't send `Ctrl-/` (see [Terminal](#terminal)) |
+| `<C-/>` opens a search or does nothing | your terminal doesn't send `Ctrl-/`; use `<Space>ft` (see [Terminal](#terminal)) |
 | Stuck typing in the terminal | `<Esc><Esc>` (or `<C-\><C-n>`) for normal mode, then `q` hides it |
 | Fully broken after an update | `:Lazy restore` (back to lockfile) or the reset command in [Update](#update-reset-uninstall) |
 

@@ -195,8 +195,14 @@ The menu opens by itself as you type (insert mode).
 | Change one match, then repeat | `*`, `cgn`, type the new word, `<Esc>`, then `.` for each next match |
 | **Search the whole project** | `<Space>/` (or `<Space>sw` for the word under the cursor) |
 | Search in this file (fuzzy) | `<Space>sb` |
+| Limit a project search to some files | type `query -- *.py` (or `-- !tests/**` to exclude) |
+| Include gitignored / hidden files | `<A-i>` / `<A-h>` inside the grep picker |
+| Fuzzy-filter grep results | `<C-g>` inside the grep picker |
 | **Replace across the project** | `<Space>/`, search, `<C-q>` (sends results to quickfix), then `:cdo s/old/new/g \| update` |
 | Reopen the last search | `<Space>sr` |
+
+Project search runs **ripgrep** (`rg`): smart case (`foo` matches `Foo`; a capital makes it exact),
+regex queries, and it skips `.gitignore`d and hidden files. `:grep foo` uses it too.
 
 ## Files and buffers
 
@@ -232,7 +238,8 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 
 | Do this | Keys |
 |---|---|
-| **Open / hide the terminal** | `<Space>ft` (always works) or `<C-/>` (if your terminal sends it) |
+| **Open / hide the terminal** | `<Space>ft` |
+| Hide it while typing in it | `<Esc><Esc>` then `q` |
 | Leave terminal mode | `<Esc><Esc>` (or `<C-\><C-n>`) |
 | Hide it from normal mode | `q` |
 | Type into it again | `i` or `a` |
@@ -242,7 +249,8 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 | Close it for good | `exit` in the shell |
 | Git UI in a floating terminal | `<Space>gg` (lazygit) |
 
-`<C-/>` doing nothing? See [Terminal in the README](README.md#terminal).
+`<C-/>` also toggles it, but only in terminal emulators that pass `Ctrl-/` through. If it opens a `/` search
+instead, yours doesn't: see [Terminal in the README](README.md#terminal).
 
 ## Code (LSP)
 
