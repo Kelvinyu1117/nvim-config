@@ -1,10 +1,13 @@
 # nvim-config
 
-A modern, keyboard-first Neovim setup for daily C/C++/CUDA, Rust, Python and Lean work — on a
-laptop or over SSH on a remote dev server. Built on Neovim's own built-in LSP, with a small set of
+A modern, keyboard-first Neovim setup for everyday programming in any language — on a laptop or
+over SSH on a remote dev server — with extra polish for C/C++/CUDA, Rust, Python and Lean. Built on Neovim's own built-in LSP, with a small set of
 well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 
 > **New to Vim?** Read [Learning Vim](#learning-vim) first, then come back to the keymaps.
+>
+> **Just need a key?** The [cheat sheet](CHEATSHEET.md) lists every common operation (copy/paste,
+> copy all, search and replace, terminal, splits, ...) on one page.
 
 ## Contents
 
@@ -13,9 +16,10 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [Install](#install)
 - [Update, reset, uninstall](#update-reset-uninstall)
 - [One config, every machine](#one-config-every-machine)
+- [Daily workflow (any language)](#daily-workflow-any-language)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
-- [Keymaps](#keymaps)
+- [Keymaps](#keymaps) (and the one-page [cheat sheet](CHEATSHEET.md))
 - [Languages](#languages)
 - [Customizing](#customizing)
 - [Remote development and Zellij](#remote-development-and-zellij)
@@ -29,13 +33,15 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - **IDE features from the built-in LSP**: go to definition, references, rename, code actions, inlay
   hints, diagnostics. The language servers are installed for you by Mason.
 - **Fast fuzzy finding** for files, text, symbols, help, keymaps and git (fzf-lua).
-- **Completion with snippets** using Vim's standard keys (blink.cmp).
+- **Completion with snippets**: `<Tab>` accepts, and Vim's `<C-n>`/`<C-p>`/`<C-y>` work too (blink.cmp).
 - **Treesitter** highlighting, indentation, folding, and code-aware text objects ("delete this function").
+  Parsers install themselves the first time you open a language.
 - **Format on save**, which is safe in foreign codebases (conform.nvim).
 - **Git**: change signs, hunk staging, blame, lazygit, side-by-side diffs.
 - **Debugger** (nvim-dap) for C/C++/CUDA/Rust (codelldb) and Python (debugpy).
 - **C++/CUDA with CMake**: configure, build, run and debug targets (`<Space>m`), and clangd set up to understand nvcc builds.
-- **Tests and tasks**: run the nearest test (neotest) and build/run with cargo/cmake/make (overseer).
+- **Run, test, build in any language**: run the current file (`<Space>rf`), the nearest test (neotest), or a
+  project task like `make`, `npm run`, `cargo build` (overseer).
 - **Seamless splits**: `Ctrl-h/j/k/l` moves between Neovim splits *and* Zellij/tmux panes.
 - **Clipboard over SSH**: when you yank on the server, the text lands on your laptop's clipboard (OSC 52).
 - **Transparent One Dark Pro theme** (no italics), with tokyonight and catppuccin one keystroke away (`<Space>uC`).
@@ -54,10 +60,13 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 | A [Nerd Font](https://www.nerdfonts.com/) set in your terminal | icons (otherwise you'll see boxes) |
 | Optional: [rustup](https://rustup.rs) + `rustup component add rust-analyzer` | Rust |
 | Optional: [elan](https://github.com/leanprover/elan) | Lean 4 |
+| Optional: Node.js with `npm` | TypeScript/JavaScript (vtsls) and prettier; skipped where `npm` is missing |
+| Optional: [ghcup](https://www.haskell.org/ghcup/) + `ghcup install hls` | Haskell |
+| Optional: [opam](https://opam.ocaml.org) + `opam install ocaml-lsp-server ocamlformat` | OCaml |
 | Optional: [Zellij](https://zellij.dev) | terminal multiplexer (see [below](#remote-development-and-zellij)) |
 
 Everything else (clangd, basedpyright, ruff, lua-language-server, neocmakelsp, clang-format, stylua,
-codelldb, debugpy, the tree-sitter CLI) is installed automatically by **Mason** on first start.
+shfmt, taplo, prettier if `npm` is installed, codelldb, debugpy, the tree-sitter CLI) is installed automatically by **Mason** on first start.
 
 **macOS**
 
@@ -193,6 +202,28 @@ Anything that depends on the machine detects it at runtime:
 
 On a Mac without CUDA, CUDA support simply stays off. Nothing errors.
 
+## Daily workflow (any language)
+
+The same loop works for every language. Only step 5 (run/test/debug) depends on the project's tooling.
+
+| Step | Keys | Notes |
+|---|---|---|
+| 1. Open the project | `cd project && nvim` | then `s` on the dashboard, or `<Space>qs`, restores your last session here |
+| 2. Find your way | `<Space><Space>` files, `<Space>/` grep, `<Space>e` explorer, `<Space>fr` recent | `<Space>,` switches between open files |
+| 3. Read code | `gd` definition, `grr` references, `K` docs, `<C-o>` back | `<Space>ss` symbols in this file, `<Space>sS` in the project |
+| 4. Edit | `ciw`, `cia`, `dif`, `.` repeat, `<Tab>` accept completion, `grn` rename | `gra` quick fix, `]d` next error, `<Space>xx` all errors |
+| 5a. Run | `<Space>rf` run this file, `<Space>rr` run a project task | output in a float / the task list (`<Space>rt`) |
+| 5b. Test | `<Space>tt` nearest test, `<Space>tf` file, `<Space>ts` summary | pytest, cargo, GoogleTest; others via `<Space>rr` (`npm test`, `go test`, `make test`) |
+| 5c. Debug | `<Space>db` breakpoint, `<Space>dc` start, `<Space>do`/`di` step | Python, C/C++/CUDA, Rust; any language with a `.vscode/launch.json` |
+| 6. Format | automatic on save, or `<Space>cf` | `:ConformInfo` if nothing happens |
+| 7. Shell | `<Space>ft` terminal, `<Esc><Esc>` then `q` to hide | build tools, REPLs, `git` |
+| 8. Commit | `<Space>gg` lazygit: `space` stage, `c` commit, `P` push | `]h`/`[h` to review your changes first, `<Space>ghp` preview |
+
+Working in several places at once? `<Space>|` splits the screen, `<C-h/l>` moves between splits.
+
+**Adding a language** takes a minute, see [Languages](#adding-a-language). Highlighting installs itself;
+you only pick the language server.
+
 ## How the config is organized
 
 ```
@@ -201,7 +232,7 @@ nvim/
 ├── lua/config/
 │   ├── options.lua          editor settings, clipboard (OSC 52 over SSH), diagnostics look
 │   ├── lazy.lua             installs and starts the plugin manager
-│   ├── keymaps.lua          global keymaps (save, splits, buffers, moving lines...)
+│   ├── keymaps.lua          global keymaps (save, splits, buffers, run current file...)
 │   └── autocmds.lua         automatic behaviour + LSP keymaps when a server attaches
 ├── lua/plugins/             one file per area, each returns lazy.nvim plugin specs
 │   ├── colorscheme.lua      onedarkpro (default), tokyonight, catppuccin; transparency + italic switches
@@ -273,7 +304,7 @@ option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic lett
 | `<C-o>` / `<C-i>` | jump back / forward (after `gd`, searches, ...) |
 | `<C-s>` | save |
 | `s` + 2 chars + label | jump anywhere on screen |
-| `<C-/>` | toggle a terminal |
+| `<Space>ft` | open / hide a terminal (see [Terminal](#terminal)) |
 | `<Space>gg` | lazygit |
 
 ### General
@@ -314,11 +345,46 @@ open in a vertical/horizontal split, `<C-q>` to send all results to the quickfix
 | `<Space>fb` | buffers | `<Space>ss` / `sS` | symbols in buffer / workspace |
 | `<Space>fc` | config files | `<Space>sd` / `sD` | diagnostics buffer / workspace |
 | `<Space>fn` | new file | `<Space>sh` | help pages |
-| `<Space>:` | command history | `<Space>sk` | keymaps |
+| `<Space>ft` | terminal (toggle) | `<Space>sk` | keymaps |
+| `<Space>:` | command history | | |
 | | | `<Space>sr` | resume last picker |
 | | | `<Space>sm` / `sR` / `sj` | marks / registers / jumps |
 | | | `<Space>sc` / `sC` | command history / commands |
 | | | `<Space>sq` / `st` | quickfix / TODOs |
+
+**Grep uses [ripgrep](https://github.com/BurntSushi/ripgrep) (`rg`)**: `<Space>/` and `<Space>sg` run it
+live as you type (through fzf-lua), and so does Vim's own `:grep` (set in `options.lua`). That means:
+- **Smart case**: `foo` matches `Foo` and `FOO`; typing a capital (`Foo`) makes it case-sensitive.
+- **Files in `.gitignore` and hidden files are skipped** (`node_modules`, `build/`, `.git`, ...). Inside
+  the picker, `<A-i>` toggles ignored files and `<A-h>` hidden ones.
+- **The query is a regex**: `foo.*bar`, `\bword\b`, `fn \w+\(`. Escape `(`, `.`, `[` for a literal match.
+- **Only some files**: add `--` and a glob, e.g. `TODO -- *.cpp` or `init -- !tests/**`.
+- **Fuzzy-filter the results**: `<C-g>` switches between live regex search and fuzzy filtering of what was found.
+- **Search and replace across files**: `<C-q>` sends the results to the quickfix list, then
+  `:cdo s/old/new/g | update`.
+- `:grep foo` fills the quickfix list directly (open it with `<Space>xq`); `:grep foo -t py` limits it to Python files.
+
+### Terminal
+
+| Key | Where | Action |
+|---|---|---|
+| `<Space>ft` | normal mode | open the terminal; press again to hide it |
+| `<Esc><Esc>` | typing in the terminal | back to normal mode (a single `<Esc>` still goes to the shell, fzf, ...) |
+| `q` | terminal, normal mode | hide the terminal (the shell keeps running; `<Space>ft` brings it back) |
+| `i` | terminal, normal mode | type into the shell again |
+| `2<Space>ft` | normal mode | a second, separate terminal (any count works) |
+| `exit` | in the shell | close the terminal for good |
+
+So from inside the terminal, **`<Esc><Esc>` then `q`** hides it. In normal mode inside the terminal you
+can scroll, search with `/` and copy with `v`…`y`; `p` pastes into the shell. To jump to another split
+with `<C-h/j/k/l>`, press `<Esc><Esc>` first. `<C-\><C-n>` (built in) also leaves terminal mode.
+
+**Optional one-key toggle: `<C-/>`.** It works in normal mode *and* while typing in the terminal, but
+only if your terminal emulator passes `Ctrl-/` through, and many don't. If `Ctrl-/` opens a `/` search
+prompt (or types `/` into the shell), your terminal dropped the Ctrl; if it does nothing, the terminal
+or multiplexer swallowed it (VS Code and JetBrains use it for "toggle comment"). Either way, use
+`<Space>ft`. To test: run `:echo keytrans(getcharstr())` and press `Ctrl-/`. `<C-/>` or `<C-_>` means it
+works; `/` means the Ctrl was dropped.
 
 ### Code & LSP
 
@@ -336,7 +402,7 @@ Many of these are Neovim's own defaults (`grn`, `gra`, `grr`, `gri`, `grt`, `gO`
 | `gra` or `<Space>ca` | code action |
 | `grn` or `<Space>cr` | rename symbol |
 | `<Space>cR` | rename file (updates imports) |
-| `<Space>cf` | format file / selection |
+| `<Space>cf` | format file / selection (see [Formatting](#formatting)) |
 | `<Space>cd` or `<C-w>d` | diagnostic under cursor |
 | `[d` / `]d` | previous / next diagnostic |
 | `]]` / `[[` | next / previous use of the word under the cursor |
@@ -345,9 +411,20 @@ Many of these are Neovim's own defaults (`grn`, `gra`, `grr`, `gri`, `grt`, `gO`
 | `<Space>ci` / `cH` | C/C++: symbol info / type hierarchy |
 | `<Space>cA` / `cM` | C/C++: show AST / clangd memory usage |
 
-**Completion** (insert mode): `<C-n>`/`<C-p>` next/previous, `<C-y>` accept, `<C-e>` close,
-`<C-space>` open/toggle docs, `<Tab>`/`<S-Tab>` jump between snippet placeholders. These are Vim's
-standard completion keys, so they work everywhere.
+**Completion** (insert mode). The menu opens as you type:
+
+| Key | Action |
+|---|---|
+| `<Tab>` | accept the suggestion (the first one if you haven't moved); with no menu open, jump to the next snippet placeholder or insert a tab |
+| `<S-Tab>` | previous snippet placeholder |
+| `<C-n>` / `<C-p>` or `<Down>` / `<Up>` | next / previous suggestion |
+| `<C-y>` | accept (Vim's standard key) |
+| `<C-e>` | close the menu (then `<Tab>` inserts a real tab) |
+| `<C-space>` | open the menu / toggle the docs window |
+| `<C-b>` / `<C-f>` | scroll the docs window |
+| `<C-k>` | function signature help |
+
+Want a literal tab while the menu is open? Press `<C-e>` first, or `<C-v><Tab>`.
 
 ### Text objects and motions
 
@@ -400,7 +477,7 @@ standard completion keys, so they work everywhere.
 | `<Space>du` / `dr` | toggle UI / REPL | `<Space>tS` | stop |
 | `<Space>dl` / `dt` | run last / terminate | | |
 
-**Tasks** (`<Space>r`): `<Space>rr` runs a task (cargo build, cmake, make, ...), `<Space>rt` toggles the task list, and `<Space>ra` acts on a task (restart, stop, ...).
+**Run** (`<Space>r`): `<Space>rf` runs the current file (python, node, go, bash, lua, a single C/C++ file, ...), `<Space>rr` runs a project task (make, npm scripts, cargo, just, VS Code `tasks.json`, ...), `<Space>rt` toggles the task list, and `<Space>ra` acts on a task (restart, stop, ...).
 
 ### CMake (`<Space>m`)
 
@@ -469,10 +546,11 @@ set(CMAKE_CUDA_STANDARD 20)
 add_executable(app main.cu)
 ```
 
-- **Formatting** runs **only if the project has a `.clang-format` file**, so you never reformat a
-  codebase that doesn't use clang-format. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
+- **Formatting**: format-on-save runs **only if the project has a `.clang-format` file**, so saving never
+  reformats a codebase that doesn't use clang-format. `<Space>cf` always works: without a `.clang-format`
+  it uses LLVM style and says so. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
 - **Debugging**: codelldb debugs host code (build type Debug, then `<Space>md` or `<Space>dc`). For
-  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<C-/>`).
+  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<Space>ft`).
   Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
 - **Tests**: GoogleTest tests run through neotest (`<Space>tt`), or all of them via ctest (`<Space>mT`).
 - **Not a CMake project?** Generate `compile_commands.json` with `bear -- make`.
@@ -503,10 +581,73 @@ Change strictness in `after/lsp/basedpyright.lua` (`typeCheckingMode`). Tests us
 lean.nvim starts the server and the infoview. Type unicode with backslash abbreviations (`\alpha` → α,
 `\to` → →). Lean keymaps use the *local* leader `\`; for example `\i` toggles the infoview. See `:help lean`.
 
+**TypeScript / JavaScript**: needs Node.js with `npm`; Mason then installs vtsls (the language server
+VS Code uses) and prettier. Open the folder with `package.json`/`tsconfig.json`. Format on save uses
+prettier (it reads your `.prettierrc`); `<Space>rr` lists the npm scripts (`dev`, `build`, `test`, ...),
+and `<Space>rf` runs a single file with `tsx`.
+
+**Haskell and OCaml**: their language servers come from the language's own toolchain, not Mason, and
+are switched on automatically once they're on your `PATH` (restart Neovim after installing):
+- Haskell: `ghcup install hls`. Open the folder with the `.cabal` file or `stack.yaml`; hls also
+  formats (ormolu). `<Space>rf` runs a file with `runghc`.
+- OCaml: `opam install ocaml-lsp-server ocamlformat`, then build once with `dune build` so the server
+  knows your project. Formatting runs only when the project has an `.ocamlformat` file. `<Space>rf`
+  runs a file with `ocaml`.
+
+Highlighting for both installs itself the first time you open a file.
+
 **Lua**: lua_ls and lazydev give full completion for the Neovim API while you edit this config.
 
-**Other languages**: open `:Mason` and press `i` on a server to install it (mason-lspconfig enables
-it automatically), then run `:TSInstall <language>` for highlighting.
+### Adding a language
+
+Go, TypeScript, Java, Zig, Haskell, ... anything with a language server works the same way:
+
+1. **Highlighting**: open a file. The treesitter parser installs in the background and highlighting
+   starts when it's ready. (Manual: `:TSInstall <language>`.)
+2. **Language server** (completion, `gd`, `grr`, `K`, rename, diagnostics): run `:LspInstall` in a file
+   of that language and pick a server from the list (or browse with `:Mason`, `i` to install). It's
+   enabled automatically, now and on every later start. Make it permanent on all your machines by
+   adding it to `ensure_installed` in `lua/plugins/lsp.lua`.
+3. **Formatting**: nothing to do if the language server formats (most do: gopls, rust-analyzer,
+   zls, ...). For a separate formatter, add it to `formatters_by_ft` in `lua/plugins/formatting.lua` and
+   install it in `:Mason`.
+4. **Run**: `<Space>rf` knows common languages; add a line to `runners` in `lua/config/keymaps.lua` for others.
+   Project builds (`make`, `npm run …`, `just`, `cargo`) appear under `<Space>rr` automatically.
+5. **Tests and debugging** (optional): add a [neotest adapter](https://github.com/nvim-neotest/neotest#supported-runners)
+   in `lua/plugins/test.lua`, and a debug adapter in `lua/plugins/dap.lua`, or put a `.vscode/launch.json`
+   in the project. Until then, run tests with `<Space>rr` or in the terminal.
+
+| Language | Highlighting | LSP | Format | Run | Test | Debug |
+|---|---|---|---|---|---|---|
+| C / C++ / CUDA | ✓ | clangd | clang-format | `<Space>rf`, CMake `<Space>m` | GoogleTest, ctest | codelldb |
+| Python | ✓ | basedpyright + ruff | ruff | `<Space>rf` | pytest | debugpy |
+| Rust | ✓ | rust-analyzer | rustfmt | `<Space>rf` (`cargo run`) | cargo test | codelldb |
+| Lua | ✓ | lua_ls | stylua | `<Space>rf` | | |
+| TypeScript / JavaScript | ✓ | vtsls | prettier | `<Space>rf` (`tsx` / `node`), `<Space>rr` npm scripts | `<Space>rr` | `launch.json` |
+| Lean 4 | ✓ | lean.nvim (via elan) | | `<Space>rf` (`lean --run`) | | |
+| Haskell | auto | hls (from ghcup) | hls (ormolu) | `<Space>rf` (`runghc`) | | |
+| OCaml | auto | ocamllsp (from opam) | ocamlformat via ocamllsp | `<Space>rf` (`ocaml`) | | |
+| Shell, TOML, JSON, YAML, Markdown | ✓ | `:LspInstall` | shfmt, taplo, prettier | `<Space>rf` (shell) | | |
+| Go and others | auto | `:LspInstall` | LSP | `<Space>rf` (Go) | `<Space>rr` | `launch.json` |
+
+### Formatting
+
+Files are formatted when you save (`<Space>uf` turns that off), and `<Space>cf` formats the file or
+the selection on demand. `:ConformInfo` shows which formatter the current file uses, and why one is missing.
+
+| Files | Formatter | Notes |
+|---|---|---|
+| C, C++, CUDA | clang-format | on save only with a `.clang-format` in the project; `<Space>cf` always (LLVM style without one) |
+| Python | ruff | sorts imports, then formats |
+| Rust | rustfmt | comes with rustup |
+| Lua | stylua | reads `.stylua.toml` |
+| Shell (sh, bash, zsh) | shfmt | reads `.editorconfig` |
+| TOML | taplo | |
+| JS, TS, CSS, HTML, JSON, YAML, Markdown | prettier | installed only where `npm` exists; otherwise the language server formats, if there is one |
+| CMake and anything else | the language server, if it can format | e.g. neocmakelsp for `CMakeLists.txt` |
+
+The formatters are installed by Mason on first start, so formatting starts working once `:Mason`
+shows them as installed.
 
 ## Customizing
 
@@ -679,10 +820,12 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | clangd can't find headers | `<Space>mg` in a CMake project (or `bear -- make`) to create `compile_commands.json` |
 | "Unknown argument" errors in `.cu` files | run `:CudaClangdSetup`, then restart Neovim |
 | No syntax colors | `:checkhealth nvim-treesitter`; is `tree-sitter` installed (`:Mason`)? Restart after the first install |
-| Format on save does nothing | `:ConformInfo`; for C/C++ add a `.clang-format`; check `<Space>uf` |
+| "No formatters available" | `:ConformInfo` shows what's missing; is the tool installed in `:Mason`? See [Formatting](#formatting) |
+| Format on save does nothing | for C/C++ add a `.clang-format` (`<Space>cf` works without one); check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
 | `<A-h>` types a symbol on macOS | set Option as Alt in your terminal |
-| `<C-/>` does nothing | your terminal may send `<C-_>`, which is mapped too; otherwise use `:lua Snacks.terminal()` |
+| `<C-/>` opens a search or does nothing | your terminal doesn't send `Ctrl-/`; use `<Space>ft` (see [Terminal](#terminal)) |
+| Stuck typing in the terminal | `<Esc><Esc>` (or `<C-\><C-n>`) for normal mode, then `q` hides it |
 | Fully broken after an update | `:Lazy restore` (back to lockfile) or the reset command in [Update](#update-reset-uninstall) |
 
 ## More plugins worth knowing

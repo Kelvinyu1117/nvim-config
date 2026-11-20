@@ -42,6 +42,10 @@ return {
     { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete buffer" },
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete other buffers" },
     { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename file (updates imports)" },
+    -- Terminal. <Space>ft always works; <C-/> is quicker but some terminals never send it
+    -- (macOS Terminal.app, VS Code/JetBrains, which use it for "comment"). Inside the terminal:
+    -- <Esc><Esc> for normal mode, then `q` hides it. `2<Space>ft` opens a second terminal.
+    { "<leader>ft", function() Snacks.terminal() end, desc = "Terminal (toggle)" },
     { "<c-/>", function() Snacks.terminal() end, desc = "Toggle terminal", mode = { "n", "t" } },
     { "<c-_>", function() Snacks.terminal() end, desc = "which_key_ignore", mode = { "n", "t" } }, -- some terminals send <c-_> for <c-/>
     { "]]", function() Snacks.words.jump(vim.v.count1) end, desc = "Next reference" },

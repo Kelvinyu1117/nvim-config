@@ -39,6 +39,47 @@ map("x", ">", ">gv", { desc = "Indent right" })
 -- Diagnostics. `[d` / `]d` (prev/next) and `<C-w>d` (float) are built in.
 map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line diagnostics" })
 
+-- Run the current file, whatever the language: <Space>rf saves it and shows the output in a
+-- floating terminal (`q` closes it). Projects with a build system: <Space>rr (tasks) instead.
+local runners = {
+  python = "python3 %s",
+  lua = "nvim -l %s",
+  sh = "bash %s",
+  bash = "bash %s",
+  zsh = "zsh %s",
+  javascript = "node %s",
+  typescript = "npx --yes tsx %s",
+  go = "go run %s",
+  ruby = "ruby %s",
+  perl = "perl %s",
+  php = "php %s",
+  rust = "cargo run", -- runs the crate the file belongs to
+  haskell = "runghc %s",
+  ocaml = "ocaml %s",
+  lean = "lean --run %s",
+  c = "cc -std=c17 -Wall -g %s -o /tmp/nvim-run && /tmp/nvim-run",
+  cpp = "c++ -std=c++20 -Wall -g %s -o /tmp/nvim-run && /tmp/nvim-run",
+  cuda = "nvcc -g %s -o /tmp/nvim-run && /tmp/nvim-run",
+}
+map("n", "<leader>rf", function()
+  local cmd = runners[vim.bo.filetype]
+  if not cmd then
+    vim.notify("No runner for filetype '" .. vim.bo.filetype .. "': add one in config/keymaps.lua", vim.log.levels.WARN)
+    return
+  end
+  vim.cmd("update")
+  cmd = cmd:format(vim.fn.shellescape(vim.fn.expand("%:p")))
+  Snacks.terminal.open(cmd, {
+    cwd = vim.fn.expand("%:p:h"),
+    -- keep the output on screen after the program exits; `q` closes the window
+    interactive = false,
+    start_insert = false,
+    auto_insert = false,
+    auto_close = false,
+    win = { position = "float" },
+  })
+end, { desc = "Run current file" })
+
 -- Misc
 map("n", "<leader>qq", "<cmd>qa<cr>", { desc = "Quit all" })
 map("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Plugin manager (Lazy)" })

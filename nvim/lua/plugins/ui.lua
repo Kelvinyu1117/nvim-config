@@ -49,7 +49,7 @@ return {
         { "<leader>gh", group = "hunks" },
         { "<leader>m", group = "cmake" },
         { "<leader>q", group = "quit/session" },
-        { "<leader>r", group = "run tasks" },
+        { "<leader>r", group = "run" },
         { "<leader>s", group = "search" },
         { "<leader>t", group = "test" },
         { "<leader>u", group = "ui toggles" },

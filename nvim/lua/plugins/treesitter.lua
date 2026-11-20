@@ -1,11 +1,11 @@
 -- Treesitter: syntax-aware highlighting, indentation, folding and text objects.
 -- Uses the `main` branch of nvim-treesitter. It needs the `tree-sitter` CLI (installed by Mason,
 -- see lsp.lua) and a C compiler. On the very first launch, restart Neovim once after Mason finishes.
--- Install more languages any time with `:TSInstall <lang>`.
+-- Other languages install automatically the first time you open one (or `:TSInstall <lang>`).
 local parsers = {
-  "bash", "c", "cmake", "cpp", "cuda", "diff", "gitcommit", "json", "lua", "luadoc",
-  "make", "markdown", "markdown_inline", "python", "query", "regex", "rust", "toml",
-  "vim", "vimdoc", "yaml",
+  "bash", "c", "cmake", "cpp", "cuda", "diff", "gitcommit", "javascript", "jsdoc", "json",
+  "lua", "luadoc", "make", "markdown", "markdown_inline", "python", "query", "regex", "rust",
+  "toml", "tsx", "typescript", "vim", "vimdoc", "yaml",
 }
 
 return {
@@ -16,14 +16,42 @@ return {
     dependencies = { "mason-org/mason.nvim" }, -- tree-sitter CLI on PATH
     build = ":TSUpdate",
     config = function()
-      require("nvim-treesitter").install(parsers) -- async, no-op if already installed
+      local ts = require("nvim-treesitter")
+      ts.install(parsers) -- async, no-op if already installed
+      local available, tried = nil, {}
 
+      local function start(buf, lang)
+        if vim.api.nvim_buf_is_valid(buf) and pcall(vim.treesitter.start, buf, lang) then
+          vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          return true
+        end
+        return false
+      end
+
+      -- Any language: highlight with the parser if it's installed; if it isn't but one exists,
+      -- install it in the background (once per session) and highlight when it's ready.
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("user_treesitter", { clear = true }),
         callback = function(ev)
-          -- Start highlighting if a parser exists for this filetype; otherwise do nothing.
-          if pcall(vim.treesitter.start, ev.buf) then
-            vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+          local lang = vim.treesitter.language.get_lang(ev.match)
+          if not lang or vim.bo[ev.buf].buftype ~= "" or start(ev.buf, lang) or tried[lang] then
+            return
+          end
+          if not available then
+            local ok, list = pcall(ts.get_available)
+            available = {}
+            for _, l in ipairs(ok and list or {}) do
+              available[l] = true
+            end
+          end
+          if not available[lang] then
+            return
+          end
+          tried[lang] = true
+          local task = ts.install(lang)
+          local buf = ev.buf
+          if not (task and task.await and pcall(task.await, task, vim.schedule_wrap(function() start(buf, lang) end))) then
+            vim.notify(("Installing the %s parser; reopen the file (:e) for highlighting"):format(lang))
           end
         end,
       })
