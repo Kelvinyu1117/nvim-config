@@ -5,6 +5,9 @@ laptop or over SSH on a remote dev server. Built on Neovim's own built-in LSP, w
 well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 
 > **New to Vim?** Read [Learning Vim](#learning-vim) first, then come back to the keymaps.
+>
+> **Just need a key?** The [cheat sheet](CHEATSHEET.md) lists every common operation (copy/paste,
+> copy all, search and replace, terminal, splits, ...) on one page.
 
 ## Contents
 
@@ -15,7 +18,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [One config, every machine](#one-config-every-machine)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
-- [Keymaps](#keymaps)
+- [Keymaps](#keymaps) (and the one-page [cheat sheet](CHEATSHEET.md))
 - [Languages](#languages)
 - [Customizing](#customizing)
 - [Remote development and Zellij](#remote-development-and-zellij)
@@ -273,7 +276,7 @@ option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic lett
 | `<C-o>` / `<C-i>` | jump back / forward (after `gd`, searches, ...) |
 | `<C-s>` | save |
 | `s` + 2 chars + label | jump anywhere on screen |
-| `<C-/>` | toggle a terminal |
+| `<Space>ft` or `<C-/>` | toggle a terminal (see [Terminal](#terminal)) |
 | `<Space>gg` | lazygit |
 
 ### General
@@ -314,11 +317,34 @@ open in a vertical/horizontal split, `<C-q>` to send all results to the quickfix
 | `<Space>fb` | buffers | `<Space>ss` / `sS` | symbols in buffer / workspace |
 | `<Space>fc` | config files | `<Space>sd` / `sD` | diagnostics buffer / workspace |
 | `<Space>fn` | new file | `<Space>sh` | help pages |
-| `<Space>:` | command history | `<Space>sk` | keymaps |
+| `<Space>ft` | terminal (toggle) | `<Space>sk` | keymaps |
+| `<Space>:` | command history | | |
 | | | `<Space>sr` | resume last picker |
 | | | `<Space>sm` / `sR` / `sj` | marks / registers / jumps |
 | | | `<Space>sc` / `sC` | command history / commands |
 | | | `<Space>sq` / `st` | quickfix / TODOs |
+
+### Terminal
+
+| Key | Where | Action |
+|---|---|---|
+| `<Space>ft` | normal | open / hide the terminal (works in every terminal emulator) |
+| `<C-/>` | normal or inside the terminal | same, one keystroke, if your terminal sends it (see below) |
+| `<Esc><Esc>` | inside the terminal | leave terminal mode (a single `<Esc>` still reaches the shell, fzf, ...) |
+| `<C-\><C-n>` | inside the terminal | leave terminal mode (built in, always works) |
+| `q` | terminal, normal mode | hide the terminal; `i` or `a` types into it again |
+| `2<Space>ft` | normal | a second terminal (any count gives a separate one) |
+| `exit` / `<C-d>` | in the shell | close the terminal for good |
+
+The terminal is a normal buffer: hiding it keeps the shell running. In normal mode inside it you can
+scroll, search with `/`, and copy with `v`…`y`; `p` sends a paste to the shell. To move to another
+split with `<C-h/j/k/l>`, leave terminal mode first (`<Esc><Esc>`).
+
+**`<C-/>` does nothing?** Use `<Space>ft`. Some terminals never send `Ctrl-/` to programs: macOS
+Terminal.app sends nothing, and the VS Code and JetBrains terminals use it for "toggle comment".
+Others send it as `<C-_>`, which is mapped too. To check what yours sends, run `:echo keytrans(getcharstr())`
+and press `Ctrl-/`: `<C-/>` or `<C-_>` means it arrives; if it waits or prints something else, your
+terminal or multiplexer (Zellij, tmux) is catching it.
 
 ### Code & LSP
 
@@ -472,7 +498,7 @@ add_executable(app main.cu)
 - **Formatting** runs **only if the project has a `.clang-format` file**, so you never reformat a
   codebase that doesn't use clang-format. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
 - **Debugging**: codelldb debugs host code (build type Debug, then `<Space>md` or `<Space>dc`). For
-  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<C-/>`).
+  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<Space>ft`).
   Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
 - **Tests**: GoogleTest tests run through neotest (`<Space>tt`), or all of them via ctest (`<Space>mT`).
 - **Not a CMake project?** Generate `compile_commands.json` with `bear -- make`.
@@ -682,7 +708,8 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | Format on save does nothing | `:ConformInfo`; for C/C++ add a `.clang-format`; check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
 | `<A-h>` types a symbol on macOS | set Option as Alt in your terminal |
-| `<C-/>` does nothing | your terminal may send `<C-_>`, which is mapped too; otherwise use `:lua Snacks.terminal()` |
+| `<C-/>` does nothing | use `<Space>ft`; your terminal doesn't send `Ctrl-/` (see [Terminal](#terminal)) |
+| Stuck typing in the terminal | `<Esc><Esc>` (or `<C-\><C-n>`) for normal mode, then `q` hides it |
 | Fully broken after an update | `:Lazy restore` (back to lockfile) or the reset command in [Update](#update-reset-uninstall) |
 
 ## More plugins worth knowing
