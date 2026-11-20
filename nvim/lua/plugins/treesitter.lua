@@ -3,9 +3,9 @@
 -- see lsp.lua) and a C compiler. On the very first launch, restart Neovim once after Mason finishes.
 -- Other languages install automatically the first time you open one (or `:TSInstall <lang>`).
 local parsers = {
-  "bash", "c", "cmake", "cpp", "cuda", "diff", "gitcommit", "json", "lua", "luadoc",
-  "make", "markdown", "markdown_inline", "python", "query", "regex", "rust", "toml",
-  "vim", "vimdoc", "yaml",
+  "bash", "c", "cmake", "cpp", "cuda", "diff", "gitcommit", "javascript", "jsdoc", "json",
+  "lua", "luadoc", "make", "markdown", "markdown_inline", "python", "query", "regex", "rust",
+  "toml", "tsx", "typescript", "vim", "vimdoc", "yaml",
 }
 
 return {

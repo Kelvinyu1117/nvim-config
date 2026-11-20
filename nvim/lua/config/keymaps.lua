@@ -54,6 +54,9 @@ local runners = {
   perl = "perl %s",
   php = "php %s",
   rust = "cargo run", -- runs the crate the file belongs to
+  haskell = "runghc %s",
+  ocaml = "ocaml %s",
+  lean = "lean --run %s",
   c = "cc -std=c17 -Wall -g %s -o /tmp/nvim-run && /tmp/nvim-run",
   cpp = "c++ -std=c++20 -Wall -g %s -o /tmp/nvim-run && /tmp/nvim-run",
   cuda = "nvcc -g %s -o /tmp/nvim-run && /tmp/nvim-run",

@@ -43,21 +43,41 @@ return {
       "neovim/nvim-lspconfig",
       "saghen/blink.cmp",
     },
-    opts = {
-      ensure_installed = {
+    opts = function()
+      local servers = {
         "clangd", -- C, C++, CUDA
         "basedpyright", -- Python types/navigation
         "ruff", -- Python lint + format
         "lua_ls", -- Lua (this config)
         "neocmake", -- CMakeLists.txt
-      },
-      -- rust-analyzer comes from rustup and is managed by rustaceanvim
-      automatic_enable = { exclude = { "rust_analyzer" } },
-    },
+      }
+      -- TypeScript/JavaScript; Mason installs it with npm, so skip it where npm is missing
+      if vim.fn.executable("npm") == 1 then
+        table.insert(servers, "vtsls")
+      end
+      return {
+        ensure_installed = servers,
+        -- rust-analyzer comes from rustup and is managed by rustaceanvim
+        automatic_enable = { exclude = { "rust_analyzer" } },
+      }
+    end,
     config = function(_, opts)
       -- Tell every server what the completion engine supports (snippets, etc.)
       vim.lsp.config("*", { capabilities = require("blink.cmp").get_lsp_capabilities() })
       require("mason-lspconfig").setup(opts)
+
+      -- Servers that come with their language's toolchain rather than Mason (like rust-analyzer
+      -- with rustup): enabled only when installed, so machines without them stay quiet.
+      --   Haskell: ghcup install hls        OCaml: opam install ocaml-lsp-server ocamlformat
+      local toolchain_servers = {
+        hls = "haskell-language-server-wrapper",
+        ocamllsp = "ocamllsp",
+      }
+      for server, exe in pairs(toolchain_servers) do
+        if vim.fn.executable(exe) == 1 then
+          vim.lsp.enable(server)
+        end
+      end
     end,
   },
 

@@ -279,7 +279,7 @@ and JSON/YAML/Markdown when `npm` is installed. Details in the [README](README.m
 
 | Do this | Keys |
 |---|---|
-| **Run the current file** | `<Space>rf` (Python, JS/TS, Go, shell, Lua, Ruby, a single C/C++/CUDA file, `cargo run`) |
+| **Run the current file** | `<Space>rf` (Python, TS/JS, C/C++/CUDA single file, `cargo run`, Lean, Haskell, OCaml, Go, shell, Lua) |
 | Run a project task (make, npm scripts, cargo, just, `tasks.json`) | `<Space>rr` |
 | Run any command as a task | `<Space>rr`, pick `shell`, type it (`go test ./...`, `npm test`, ...) |
 | Task list / restart or stop a task | `<Space>rt` / `<Space>ra` |
@@ -305,6 +305,7 @@ for any language whose project has a `.vscode/launch.json`.
 | Make it permanent everywhere | add the server to `ensure_installed` in `lua/plugins/lsp.lua` |
 | Formatting | usually free through the language server; check with `:ConformInfo` |
 | `<Space>rf` support | add a line to `runners` in `lua/config/keymaps.lua` |
+| Haskell / OCaml | `ghcup install hls` / `opam install ocaml-lsp-server ocamlformat`, then restart: picked up automatically |
 
 Full checklist in the [README](README.md#adding-a-language).
 

@@ -60,6 +60,9 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 | A [Nerd Font](https://www.nerdfonts.com/) set in your terminal | icons (otherwise you'll see boxes) |
 | Optional: [rustup](https://rustup.rs) + `rustup component add rust-analyzer` | Rust |
 | Optional: [elan](https://github.com/leanprover/elan) | Lean 4 |
+| Optional: Node.js with `npm` | TypeScript/JavaScript (vtsls) and prettier; skipped where `npm` is missing |
+| Optional: [ghcup](https://www.haskell.org/ghcup/) + `ghcup install hls` | Haskell |
+| Optional: [opam](https://opam.ocaml.org) + `opam install ocaml-lsp-server ocamlformat` | OCaml |
 | Optional: [Zellij](https://zellij.dev) | terminal multiplexer (see [below](#remote-development-and-zellij)) |
 
 Everything else (clangd, basedpyright, ruff, lua-language-server, neocmakelsp, clang-format, stylua,
@@ -566,6 +569,21 @@ Change strictness in `after/lsp/basedpyright.lua` (`typeCheckingMode`). Tests us
 lean.nvim starts the server and the infoview. Type unicode with backslash abbreviations (`\alpha` → α,
 `\to` → →). Lean keymaps use the *local* leader `\`; for example `\i` toggles the infoview. See `:help lean`.
 
+**TypeScript / JavaScript**: needs Node.js with `npm`; Mason then installs vtsls (the language server
+VS Code uses) and prettier. Open the folder with `package.json`/`tsconfig.json`. Format on save uses
+prettier (it reads your `.prettierrc`); `<Space>rr` lists the npm scripts (`dev`, `build`, `test`, ...),
+and `<Space>rf` runs a single file with `tsx`.
+
+**Haskell and OCaml**: their language servers come from the language's own toolchain, not Mason, and
+are switched on automatically once they're on your `PATH` (restart Neovim after installing):
+- Haskell: `ghcup install hls`. Open the folder with the `.cabal` file or `stack.yaml`; hls also
+  formats (ormolu). `<Space>rf` runs a file with `runghc`.
+- OCaml: `opam install ocaml-lsp-server ocamlformat`, then build once with `dune build` so the server
+  knows your project. Formatting runs only when the project has an `.ocamlformat` file. `<Space>rf`
+  runs a file with `ocaml`.
+
+Highlighting for both installs itself the first time you open a file.
+
 **Lua**: lua_ls and lazydev give full completion for the Neovim API while you edit this config.
 
 ### Adding a language
@@ -593,9 +611,12 @@ Go, TypeScript, Java, Zig, Haskell, ... anything with a language server works th
 | Python | ✓ | basedpyright + ruff | ruff | `<Space>rf` | pytest | debugpy |
 | Rust | ✓ | rust-analyzer | rustfmt | `<Space>rf` (`cargo run`) | cargo test | codelldb |
 | Lua | ✓ | lua_ls | stylua | `<Space>rf` | | |
-| Lean 4 | ✓ | lean.nvim (via elan) | | | | |
+| TypeScript / JavaScript | ✓ | vtsls | prettier | `<Space>rf` (`tsx` / `node`), `<Space>rr` npm scripts | `<Space>rr` | `launch.json` |
+| Lean 4 | ✓ | lean.nvim (via elan) | | `<Space>rf` (`lean --run`) | | |
+| Haskell | auto | hls (from ghcup) | hls (ormolu) | `<Space>rf` (`runghc`) | | |
+| OCaml | auto | ocamllsp (from opam) | ocamlformat via ocamllsp | `<Space>rf` (`ocaml`) | | |
 | Shell, TOML, JSON, YAML, Markdown | ✓ | `:LspInstall` | shfmt, taplo, prettier | `<Space>rf` (shell) | | |
-| Go, JS/TS, others | auto | `:LspInstall` | LSP or prettier | `<Space>rf` (Go, JS/TS) | `<Space>rr` | `launch.json` |
+| Go and others | auto | `:LspInstall` | LSP | `<Space>rf` (Go) | `<Space>rr` | `launch.json` |
 
 ### Formatting
 
