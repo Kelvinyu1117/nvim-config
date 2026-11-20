@@ -17,15 +17,22 @@ return {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     lazy = false, -- installs missing tools on startup
     dependencies = { "mason-org/mason.nvim" },
-    opts = {
-      ensure_installed = {
+    opts = function()
+      local tools = {
         "clang-format", -- C/C++/CUDA formatter
         "stylua", -- Lua formatter
+        "shfmt", -- shell script formatter
+        "taplo", -- TOML formatter
         "codelldb", -- debugger for C/C++/Rust
         "debugpy", -- debugger for Python
         "tree-sitter-cli", -- builds treesitter parsers
-      },
-    },
+      }
+      -- JSON/YAML/Markdown formatter; Mason installs it with npm, so skip it where npm is missing
+      if vim.fn.executable("npm") == 1 then
+        table.insert(tools, "prettier")
+      end
+      return { ensure_installed = tools }
+    end,
   },
 
   {

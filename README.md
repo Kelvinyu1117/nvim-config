@@ -60,7 +60,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 | Optional: [Zellij](https://zellij.dev) | terminal multiplexer (see [below](#remote-development-and-zellij)) |
 
 Everything else (clangd, basedpyright, ruff, lua-language-server, neocmakelsp, clang-format, stylua,
-codelldb, debugpy, the tree-sitter CLI) is installed automatically by **Mason** on first start.
+shfmt, taplo, prettier if `npm` is installed, codelldb, debugpy, the tree-sitter CLI) is installed automatically by **Mason** on first start.
 
 **macOS**
 
@@ -362,7 +362,7 @@ Many of these are Neovim's own defaults (`grn`, `gra`, `grr`, `gri`, `grt`, `gO`
 | `gra` or `<Space>ca` | code action |
 | `grn` or `<Space>cr` | rename symbol |
 | `<Space>cR` | rename file (updates imports) |
-| `<Space>cf` | format file / selection |
+| `<Space>cf` | format file / selection (see [Formatting](#formatting)) |
 | `<Space>cd` or `<C-w>d` | diagnostic under cursor |
 | `[d` / `]d` | previous / next diagnostic |
 | `]]` / `[[` | next / previous use of the word under the cursor |
@@ -506,8 +506,9 @@ set(CMAKE_CUDA_STANDARD 20)
 add_executable(app main.cu)
 ```
 
-- **Formatting** runs **only if the project has a `.clang-format` file**, so you never reformat a
-  codebase that doesn't use clang-format. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
+- **Formatting**: format-on-save runs **only if the project has a `.clang-format` file**, so saving never
+  reformats a codebase that doesn't use clang-format. `<Space>cf` always works: without a `.clang-format`
+  it uses LLVM style and says so. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
 - **Debugging**: codelldb debugs host code (build type Debug, then `<Space>md` or `<Space>dc`). For
   device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<Space>ft`).
   Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
@@ -544,6 +545,25 @@ lean.nvim starts the server and the infoview. Type unicode with backslash abbrev
 
 **Other languages**: open `:Mason` and press `i` on a server to install it (mason-lspconfig enables
 it automatically), then run `:TSInstall <language>` for highlighting.
+
+### Formatting
+
+Files are formatted when you save (`<Space>uf` turns that off), and `<Space>cf` formats the file or
+the selection on demand. `:ConformInfo` shows which formatter the current file uses, and why one is missing.
+
+| Files | Formatter | Notes |
+|---|---|---|
+| C, C++, CUDA | clang-format | on save only with a `.clang-format` in the project; `<Space>cf` always (LLVM style without one) |
+| Python | ruff | sorts imports, then formats |
+| Rust | rustfmt | comes with rustup |
+| Lua | stylua | reads `.stylua.toml` |
+| Shell (sh, bash, zsh) | shfmt | reads `.editorconfig` |
+| TOML | taplo | |
+| JSON, YAML, Markdown | prettier | installed only where `npm` exists; otherwise these files aren't formatted |
+| CMake and anything else | the language server, if it can format | e.g. neocmakelsp for `CMakeLists.txt` |
+
+The formatters are installed by Mason on first start, so formatting starts working once `:Mason`
+shows them as installed.
 
 ## Customizing
 
@@ -716,7 +736,8 @@ After that, **learn one new thing per week**. When you do something clumsy three
 | clangd can't find headers | `<Space>mg` in a CMake project (or `bear -- make`) to create `compile_commands.json` |
 | "Unknown argument" errors in `.cu` files | run `:CudaClangdSetup`, then restart Neovim |
 | No syntax colors | `:checkhealth nvim-treesitter`; is `tree-sitter` installed (`:Mason`)? Restart after the first install |
-| Format on save does nothing | `:ConformInfo`; for C/C++ add a `.clang-format`; check `<Space>uf` |
+| "No formatters available" | `:ConformInfo` shows what's missing; is the tool installed in `:Mason`? See [Formatting](#formatting) |
+| Format on save does nothing | for C/C++ add a `.clang-format` (`<Space>cf` works without one); check `<Space>uf` |
 | Yank doesn't reach laptop over SSH | terminal must allow OSC 52 (see [Remote](#remote-development-and-zellij)) |
 | `<A-h>` types a symbol on macOS | set Option as Alt in your terminal |
 | `<C-/>` does nothing | use `<Space>ft`; your terminal doesn't send `Ctrl-/` (see [Terminal](#terminal)) |

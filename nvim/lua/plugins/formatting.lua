@@ -1,6 +1,22 @@
 -- Formatting with conform.nvim. Runs on save (toggle with <Space>uf); <Space>cf formats manually.
--- C/C++/CUDA only format when the project has a .clang-format file, so you never
--- reformat a whole file in a codebase that doesn't use clang-format.
+-- Run :ConformInfo to see which formatter a buffer uses and why one is missing.
+--
+-- C/C++/CUDA: format ON SAVE only when the project has a .clang-format file, so saving never
+-- reformats a codebase that doesn't use clang-format. <Space>cf always formats: with the project's
+-- .clang-format, or LLVM style if there is none.
+-- Filetypes without a formatter listed here fall back to the language server's formatting
+-- (e.g. neocmakelsp for CMakeLists.txt).
+
+local clang_fts = { c = true, cpp = true, cuda = true }
+local clang_files = { ".clang-format", "_clang-format" }
+
+local function has_clang_format(bufnr)
+  return vim.fs.root(bufnr, clang_files) ~= nil
+end
+
+-- Prettier (JSON, YAML, Markdown) is installed by Mason only where npm exists (see lsp.lua).
+local prettier = { "prettierd", "prettier", stop_after_first = true }
+
 return {
   "stevearc/conform.nvim",
   event = "BufWritePre",
@@ -9,6 +25,10 @@ return {
     {
       "<leader>cf",
       function()
+        local buf = vim.api.nvim_get_current_buf()
+        if clang_fts[vim.bo[buf].filetype] and not has_clang_format(buf) then
+          vim.notify("No .clang-format in this project: formatting with LLVM style", vim.log.levels.INFO)
+        end
         require("conform").format({ async = true })
       end,
       mode = { "n", "x" },
@@ -24,17 +44,25 @@ return {
         python = { "ruff_organize_imports", "ruff_format" },
         rust = { "rustfmt" },
         lua = { "stylua" },
+        sh = { "shfmt" },
+        bash = { "shfmt" },
+        zsh = { "shfmt" },
+        toml = { "taplo" },
+        json = prettier,
+        jsonc = prettier,
+        yaml = prettier,
+        markdown = prettier,
       },
       formatters = {
-        -- only run when a .clang-format/_clang-format exists in the project
-        clang_format = {
-          cwd = require("conform.util").root_file({ ".clang-format", "_clang-format" }),
-          require_cwd = true,
-        },
+        -- Use the nearest .clang-format; without one, clang-format falls back to LLVM style.
+        clang_format = { cwd = require("conform.util").root_file(clang_files) },
       },
       default_format_opts = { lsp_format = "fallback" },
       format_on_save = function(bufnr)
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
+          return
+        end
+        if clang_fts[vim.bo[bufnr].filetype] and not has_clang_format(bufnr) then
           return
         end
         return { timeout_ms = 1000 }

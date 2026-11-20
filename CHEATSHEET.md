@@ -17,6 +17,7 @@ Everyday operations for this config on one page. `<Space>` is the leader; `<C-x>
 - [Windows, splits and tabs](#windows-splits-and-tabs)
 - [Terminal](#terminal)
 - [Code (LSP)](#code-lsp)
+- [Formatting](#formatting)
 - [Git](#git)
 - [Folds, macros, marks](#folds-macros-marks)
 - [Getting help](#getting-help)
@@ -234,7 +235,7 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 | Documentation | `K` (twice to enter the window) |
 | Code action (quick fix) | `gra` or `<Space>ca` |
 | Rename symbol | `grn` or `<Space>cr` |
-| Format | `<Space>cf` (on save it happens automatically; `<Space>uf` toggles that) |
+| Format the file / selection | `<Space>cf` (see [Formatting](#formatting)) |
 | Next / previous error | `]d` / `[d` (`<Space>cd` shows the full message) |
 | All problems in the project | `<Space>xx` |
 | Symbols in this file | `<Space>ss` (`gO` for an outline) |
@@ -243,6 +244,21 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 | Build / run / debug (CMake) | `<Space>mb` / `<Space>mr` / `<Space>md` |
 | Run the nearest test | `<Space>tt` |
 | Breakpoint / start debugging | `<Space>db` / `<Space>dc` (or `F9` / `F5`) |
+
+## Formatting
+
+| Do this | Keys |
+|---|---|
+| Format the file | `<Space>cf` (works in C/C++ without a `.clang-format`, using LLVM style) |
+| Format a selection | select, then `<Space>cf` |
+| Format a paragraph / motion with the formatter | `gqip` / `gq{motion}` |
+| Turn format-on-save off / on | `<Space>uf` |
+| See which formatter this file uses (or why none) | `:ConformInfo` |
+| Save without formatting, just this once | `:noautocmd w` |
+| Give a C/C++ project a style | `:!clang-format -style=llvm -dump-config > .clang-format` |
+
+Formatted on save: C/C++/CUDA (only with a `.clang-format`), Python (ruff), Rust, Lua, shell, TOML,
+and JSON/YAML/Markdown when `npm` is installed. Details in the [README](README.md#formatting).
 
 ## Git
 
