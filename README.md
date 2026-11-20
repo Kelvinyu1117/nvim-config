@@ -216,7 +216,7 @@ The same loop works for every language. Only step 5 (run/test/debug) depends on 
 | 5b. Test | `<Space>tt` nearest test, `<Space>tf` file, `<Space>ts` summary | pytest, cargo, GoogleTest; others via `<Space>rr` (`npm test`, `go test`, `make test`) |
 | 5c. Debug | `<Space>db` breakpoint, `<Space>dc` start, `<Space>do`/`di` step | Python, C/C++/CUDA, Rust; any language with a `.vscode/launch.json` |
 | 6. Format | automatic on save, or `<Space>cf` | `:ConformInfo` if nothing happens |
-| 7. Shell | `<Space>ft` terminal, `<Esc><Esc>` then `q` to hide | build tools, REPLs, `git` |
+| 7. Shell | `<C-/>` opens / hides the terminal (also from inside it) | or `<Space>ft`, then `<Esc><Esc>` `q` to hide |
 | 8. Commit | `<Space>gg` lazygit: `space` stage, `c` commit, `P` push | `]h`/`[h` to review your changes first, `<Space>ghp` preview |
 
 Working in several places at once? `<Space>|` splits the screen, `<C-h/l>` moves between splits.
@@ -304,7 +304,7 @@ option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic lett
 | `<C-o>` / `<C-i>` | jump back / forward (after `gd`, searches, ...) |
 | `<C-s>` | save |
 | `s` + 2 chars + label | jump anywhere on screen |
-| `<Space>ft` | open / hide a terminal (see [Terminal](#terminal)) |
+| `<C-/>` | open / hide a terminal, from your code or from inside it (fallback: `<Space>ft`, see [Terminal](#terminal)) |
 | `<Space>gg` | lazygit |
 
 ### General
@@ -368,23 +368,24 @@ live as you type (through fzf-lua), and so does Vim's own `:grep` (set in `optio
 
 | Key | Where | Action |
 |---|---|---|
-| `<Space>ft` | normal mode | open the terminal; press again to hide it |
+| `<C-/>` | anywhere, including while typing in the terminal | open the terminal / hide it (the shell keeps running) |
+| `<Space>ft` | normal mode | same, for terminals that don't send `Ctrl-/` (see below) |
 | `<Esc><Esc>` | typing in the terminal | back to normal mode (a single `<Esc>` still goes to the shell, fzf, ...) |
-| `q` | terminal, normal mode | hide the terminal (the shell keeps running; `<Space>ft` brings it back) |
+| `q` | terminal, normal mode | hide the terminal |
 | `i` | terminal, normal mode | type into the shell again |
-| `2<Space>ft` | normal mode | a second, separate terminal (any count works) |
+| `2<C-/>` or `2<Space>ft` | normal mode | a second, separate terminal (any count works) |
 | `exit` | in the shell | close the terminal for good |
 
-So from inside the terminal, **`<Esc><Esc>` then `q`** hides it. In normal mode inside the terminal you
-can scroll, search with `/` and copy with `v`…`y`; `p` pastes into the shell. To jump to another split
-with `<C-h/j/k/l>`, press `<Esc><Esc>` first. `<C-\><C-n>` (built in) also leaves terminal mode.
+The everyday loop is just **`<C-/>` to open, `<C-/>` to hide**. In normal mode inside the terminal
+(`<Esc><Esc>`) you can scroll, search with `/` and copy with `v`…`y`; `p` pastes into the shell. To
+jump to another split with `<C-h/j/k/l>`, press `<Esc><Esc>` first. `<C-\><C-n>` (built in) also
+leaves terminal mode.
 
-**Optional one-key toggle: `<C-/>`.** It works in normal mode *and* while typing in the terminal, but
-only if your terminal emulator passes `Ctrl-/` through, and many don't. If `Ctrl-/` opens a `/` search
-prompt (or types `/` into the shell), your terminal dropped the Ctrl; if it does nothing, the terminal
-or multiplexer swallowed it (VS Code and JetBrains use it for "toggle comment"). Either way, use
-`<Space>ft`. To test: run `:echo keytrans(getcharstr())` and press `Ctrl-/`. `<C-/>` or `<C-_>` means it
-works; `/` means the Ctrl was dropped.
+**`<C-/>` not working?** Some terminal emulators don't pass `Ctrl-/` to programs: they drop the Ctrl (you
+get a `/` search prompt, or a `/` typed into the shell), or keep the key for themselves (VS Code and
+JetBrains use it for "toggle comment"). There, use `<Space>ft` to open and hide, and `<Esc><Esc>` then
+`q` to hide from inside. To test yours: run `:echo keytrans(getcharstr())` and press `Ctrl-/`. `<C-/>`
+or `<C-_>` means it works.
 
 ### Code & LSP
 
@@ -550,7 +551,7 @@ add_executable(app main.cu)
   reformats a codebase that doesn't use clang-format. `<Space>cf` always works: without a `.clang-format`
   it uses LLVM style and says so. Create one with `clang-format -style=llvm -dump-config > .clang-format`.
 - **Debugging**: codelldb debugs host code (build type Debug, then `<Space>md` or `<Space>dc`). For
-  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<Space>ft`).
+  device code (inside kernels), run NVIDIA's `cuda-gdb ./build/Debug/app` in a terminal (`<C-/>`).
   Build with `-G` for device debug info. Use `compute-sanitizer ./app` to find out-of-bounds and race bugs.
 - **Tests**: GoogleTest tests run through neotest (`<Space>tt`), or all of them via ctest (`<Space>mT`).
 - **Not a CMake project?** Generate `compile_commands.json` with `bear -- make`.
