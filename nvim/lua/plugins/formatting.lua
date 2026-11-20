@@ -14,7 +14,8 @@ local function has_clang_format(bufnr)
   return vim.fs.root(bufnr, clang_files) ~= nil
 end
 
--- Prettier (JSON, YAML, Markdown) is installed by Mason only where npm exists (see lsp.lua).
+-- Prettier (web languages, JSON, YAML, Markdown) is installed by Mason only where npm exists
+-- (see lsp.lua). Where it's missing, those files fall back to the language server's formatter.
 local prettier = { "prettierd", "prettier", stop_after_first = true }
 
 return {
@@ -52,6 +53,15 @@ return {
         jsonc = prettier,
         yaml = prettier,
         markdown = prettier,
+        javascript = prettier,
+        javascriptreact = prettier,
+        typescript = prettier,
+        typescriptreact = prettier,
+        css = prettier,
+        scss = prettier,
+        html = prettier,
+        vue = prettier,
+        graphql = prettier,
       },
       formatters = {
         -- Use the nearest .clang-format; without one, clang-format falls back to LLVM style.

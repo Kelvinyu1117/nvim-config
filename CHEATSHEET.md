@@ -4,6 +4,7 @@ Everyday operations for this config on one page. `<Space>` is the leader; `<C-x>
 `<S-x>` Shift-x, `<A-x>` Alt/Option-x. Forgot a key? Press `<Space>` and wait, or search them all with
 `<Space>sk`. The full reference is in the [README](README.md#keymaps).
 
+- [Daily workflow (any language)](#daily-workflow-any-language)
 - [Survival](#survival)
 - [How do I…?](#how-do-i) (copy all, select all, duplicate a line, ...)
 - [Copy, cut and paste](#copy-cut-and-paste)
@@ -18,9 +19,26 @@ Everyday operations for this config on one page. `<Space>` is the leader; `<C-x>
 - [Terminal](#terminal)
 - [Code (LSP)](#code-lsp)
 - [Formatting](#formatting)
+- [Run, test, debug](#run-test-debug)
+- [Add a language](#add-a-language)
 - [Git](#git)
 - [Folds, macros, marks](#folds-macros-marks)
 - [Getting help](#getting-help)
+
+## Daily workflow (any language)
+
+| Step | Keys |
+|---|---|
+| Open the project | `cd project && nvim`, then `s` on the dashboard (or `<Space>qs`) to restore the last session |
+| Find a file / text | `<Space><Space>` / `<Space>/` |
+| Read code | `gd` definition, `grr` references, `K` docs, `<C-o>` back |
+| Edit | `<Tab>` accepts completion, `grn` rename, `gra` quick fix, `]d` next error |
+| Run | `<Space>rf` this file, `<Space>rr` a project task |
+| Test | `<Space>tt` nearest, `<Space>tf` file |
+| Debug | `<Space>db` breakpoint, `<Space>dc` start |
+| Format | on save, or `<Space>cf` |
+| Shell | `<Space>ft` |
+| Commit | `<Space>gg` (lazygit: `space` stage, `c` commit, `P` push) |
 
 ## Survival
 
@@ -241,9 +259,6 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 | Symbols in this file | `<Space>ss` (`gO` for an outline) |
 | Signature help while typing | `<C-k>` (insert mode) |
 | C/C++: header ↔ source | `<Space>ch` |
-| Build / run / debug (CMake) | `<Space>mb` / `<Space>mr` / `<Space>md` |
-| Run the nearest test | `<Space>tt` |
-| Breakpoint / start debugging | `<Space>db` / `<Space>dc` (or `F9` / `F5`) |
 
 ## Formatting
 
@@ -259,6 +274,39 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 
 Formatted on save: C/C++/CUDA (only with a `.clang-format`), Python (ruff), Rust, Lua, shell, TOML,
 and JSON/YAML/Markdown when `npm` is installed. Details in the [README](README.md#formatting).
+
+## Run, test, debug
+
+| Do this | Keys |
+|---|---|
+| **Run the current file** | `<Space>rf` (Python, JS/TS, Go, shell, Lua, Ruby, a single C/C++/CUDA file, `cargo run`) |
+| Run a project task (make, npm scripts, cargo, just, `tasks.json`) | `<Space>rr` |
+| Run any command as a task | `<Space>rr`, pick `shell`, type it (`go test ./...`, `npm test`, ...) |
+| Task list / restart or stop a task | `<Space>rt` / `<Space>ra` |
+| Run the nearest test / the file's tests / all | `<Space>tt` / `<Space>tf` / `<Space>tT` |
+| Test summary / output | `<Space>ts` / `<Space>to` |
+| Debug the nearest test | `<Space>td` |
+| Toggle a breakpoint | `<Space>db` or `F9` |
+| Start / continue debugging | `<Space>dc` or `F5` |
+| Step over / into / out | `<Space>do` / `<Space>di` / `<Space>dO` (or `F10` / `F11` / `F12`) |
+| Inspect a value | `<Space>de` (works on a selection) |
+| Stop debugging | `<Space>dt` |
+| CMake: configure / build / run / debug | `<Space>mg` / `<Space>mb` / `<Space>mr` / `<Space>md` |
+
+Tests run with pytest, cargo test and GoogleTest; debugging works for Python, C/C++/CUDA and Rust, and
+for any language whose project has a `.vscode/launch.json`.
+
+## Add a language
+
+| Do this | How |
+|---|---|
+| Highlighting | just open a file: the parser installs itself (or `:TSInstall go`) |
+| Completion, `gd`, `K`, errors | `:LspInstall` in a file of that language, pick a server |
+| Make it permanent everywhere | add the server to `ensure_installed` in `lua/plugins/lsp.lua` |
+| Formatting | usually free through the language server; check with `:ConformInfo` |
+| `<Space>rf` support | add a line to `runners` in `lua/config/keymaps.lua` |
+
+Full checklist in the [README](README.md#adding-a-language).
 
 ## Git
 

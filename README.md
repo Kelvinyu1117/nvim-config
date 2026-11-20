@@ -1,7 +1,7 @@
 # nvim-config
 
-A modern, keyboard-first Neovim setup for daily C/C++/CUDA, Rust, Python and Lean work — on a
-laptop or over SSH on a remote dev server. Built on Neovim's own built-in LSP, with a small set of
+A modern, keyboard-first Neovim setup for everyday programming in any language — on a laptop or
+over SSH on a remote dev server — with extra polish for C/C++/CUDA, Rust, Python and Lean. Built on Neovim's own built-in LSP, with a small set of
 well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 
 > **New to Vim?** Read [Learning Vim](#learning-vim) first, then come back to the keymaps.
@@ -16,6 +16,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - [Install](#install)
 - [Update, reset, uninstall](#update-reset-uninstall)
 - [One config, every machine](#one-config-every-machine)
+- [Daily workflow (any language)](#daily-workflow-any-language)
 - [How the config is organized](#how-the-config-is-organized)
 - [Plugins](#plugins)
 - [Keymaps](#keymaps) (and the one-page [cheat sheet](CHEATSHEET.md))
@@ -34,11 +35,13 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - **Fast fuzzy finding** for files, text, symbols, help, keymaps and git (fzf-lua).
 - **Completion with snippets**: `<Tab>` accepts, and Vim's `<C-n>`/`<C-p>`/`<C-y>` work too (blink.cmp).
 - **Treesitter** highlighting, indentation, folding, and code-aware text objects ("delete this function").
+  Parsers install themselves the first time you open a language.
 - **Format on save**, which is safe in foreign codebases (conform.nvim).
 - **Git**: change signs, hunk staging, blame, lazygit, side-by-side diffs.
 - **Debugger** (nvim-dap) for C/C++/CUDA/Rust (codelldb) and Python (debugpy).
 - **C++/CUDA with CMake**: configure, build, run and debug targets (`<Space>m`), and clangd set up to understand nvcc builds.
-- **Tests and tasks**: run the nearest test (neotest) and build/run with cargo/cmake/make (overseer).
+- **Run, test, build in any language**: run the current file (`<Space>rf`), the nearest test (neotest), or a
+  project task like `make`, `npm run`, `cargo build` (overseer).
 - **Seamless splits**: `Ctrl-h/j/k/l` moves between Neovim splits *and* Zellij/tmux panes.
 - **Clipboard over SSH**: when you yank on the server, the text lands on your laptop's clipboard (OSC 52).
 - **Transparent One Dark Pro theme** (no italics), with tokyonight and catppuccin one keystroke away (`<Space>uC`).
@@ -196,6 +199,28 @@ Anything that depends on the machine detects it at runtime:
 
 On a Mac without CUDA, CUDA support simply stays off. Nothing errors.
 
+## Daily workflow (any language)
+
+The same loop works for every language. Only step 5 (run/test/debug) depends on the project's tooling.
+
+| Step | Keys | Notes |
+|---|---|---|
+| 1. Open the project | `cd project && nvim` | then `s` on the dashboard, or `<Space>qs`, restores your last session here |
+| 2. Find your way | `<Space><Space>` files, `<Space>/` grep, `<Space>e` explorer, `<Space>fr` recent | `<Space>,` switches between open files |
+| 3. Read code | `gd` definition, `grr` references, `K` docs, `<C-o>` back | `<Space>ss` symbols in this file, `<Space>sS` in the project |
+| 4. Edit | `ciw`, `cia`, `dif`, `.` repeat, `<Tab>` accept completion, `grn` rename | `gra` quick fix, `]d` next error, `<Space>xx` all errors |
+| 5a. Run | `<Space>rf` run this file, `<Space>rr` run a project task | output in a float / the task list (`<Space>rt`) |
+| 5b. Test | `<Space>tt` nearest test, `<Space>tf` file, `<Space>ts` summary | pytest, cargo, GoogleTest; others via `<Space>rr` (`npm test`, `go test`, `make test`) |
+| 5c. Debug | `<Space>db` breakpoint, `<Space>dc` start, `<Space>do`/`di` step | Python, C/C++/CUDA, Rust; any language with a `.vscode/launch.json` |
+| 6. Format | automatic on save, or `<Space>cf` | `:ConformInfo` if nothing happens |
+| 7. Shell | `<Space>ft` terminal, `<Esc><Esc>` then `q` to hide | build tools, REPLs, `git` |
+| 8. Commit | `<Space>gg` lazygit: `space` stage, `c` commit, `P` push | `]h`/`[h` to review your changes first, `<Space>ghp` preview |
+
+Working in several places at once? `<Space>|` splits the screen, `<C-h/l>` moves between splits.
+
+**Adding a language** takes a minute, see [Languages](#adding-a-language). Highlighting installs itself;
+you only pick the language server.
+
 ## How the config is organized
 
 ```
@@ -204,7 +229,7 @@ nvim/
 ├── lua/config/
 │   ├── options.lua          editor settings, clipboard (OSC 52 over SSH), diagnostics look
 │   ├── lazy.lua             installs and starts the plugin manager
-│   ├── keymaps.lua          global keymaps (save, splits, buffers, moving lines...)
+│   ├── keymaps.lua          global keymaps (save, splits, buffers, run current file...)
 │   └── autocmds.lua         automatic behaviour + LSP keymaps when a server attaches
 ├── lua/plugins/             one file per area, each returns lazy.nvim plugin specs
 │   ├── colorscheme.lua      onedarkpro (default), tokyonight, catppuccin; transparency + italic switches
@@ -437,7 +462,7 @@ Want a literal tab while the menu is open? Press `<C-e>` first, or `<C-v><Tab>`.
 | `<Space>du` / `dr` | toggle UI / REPL | `<Space>tS` | stop |
 | `<Space>dl` / `dt` | run last / terminate | | |
 
-**Tasks** (`<Space>r`): `<Space>rr` runs a task (cargo build, cmake, make, ...), `<Space>rt` toggles the task list, and `<Space>ra` acts on a task (restart, stop, ...).
+**Run** (`<Space>r`): `<Space>rf` runs the current file (python, node, go, bash, lua, a single C/C++ file, ...), `<Space>rr` runs a project task (make, npm scripts, cargo, just, VS Code `tasks.json`, ...), `<Space>rt` toggles the task list, and `<Space>ra` acts on a task (restart, stop, ...).
 
 ### CMake (`<Space>m`)
 
@@ -543,8 +568,34 @@ lean.nvim starts the server and the infoview. Type unicode with backslash abbrev
 
 **Lua**: lua_ls and lazydev give full completion for the Neovim API while you edit this config.
 
-**Other languages**: open `:Mason` and press `i` on a server to install it (mason-lspconfig enables
-it automatically), then run `:TSInstall <language>` for highlighting.
+### Adding a language
+
+Go, TypeScript, Java, Zig, Haskell, ... anything with a language server works the same way:
+
+1. **Highlighting**: open a file. The treesitter parser installs in the background and highlighting
+   starts when it's ready. (Manual: `:TSInstall <language>`.)
+2. **Language server** (completion, `gd`, `grr`, `K`, rename, diagnostics): run `:LspInstall` in a file
+   of that language and pick a server from the list (or browse with `:Mason`, `i` to install). It's
+   enabled automatically, now and on every later start. Make it permanent on all your machines by
+   adding it to `ensure_installed` in `lua/plugins/lsp.lua`.
+3. **Formatting**: nothing to do if the language server formats (most do: gopls, rust-analyzer,
+   zls, ...). For a separate formatter, add it to `formatters_by_ft` in `lua/plugins/formatting.lua` and
+   install it in `:Mason`.
+4. **Run**: `<Space>rf` knows common languages; add a line to `runners` in `lua/config/keymaps.lua` for others.
+   Project builds (`make`, `npm run …`, `just`, `cargo`) appear under `<Space>rr` automatically.
+5. **Tests and debugging** (optional): add a [neotest adapter](https://github.com/nvim-neotest/neotest#supported-runners)
+   in `lua/plugins/test.lua`, and a debug adapter in `lua/plugins/dap.lua`, or put a `.vscode/launch.json`
+   in the project. Until then, run tests with `<Space>rr` or in the terminal.
+
+| Language | Highlighting | LSP | Format | Run | Test | Debug |
+|---|---|---|---|---|---|---|
+| C / C++ / CUDA | ✓ | clangd | clang-format | `<Space>rf`, CMake `<Space>m` | GoogleTest, ctest | codelldb |
+| Python | ✓ | basedpyright + ruff | ruff | `<Space>rf` | pytest | debugpy |
+| Rust | ✓ | rust-analyzer | rustfmt | `<Space>rf` (`cargo run`) | cargo test | codelldb |
+| Lua | ✓ | lua_ls | stylua | `<Space>rf` | | |
+| Lean 4 | ✓ | lean.nvim (via elan) | | | | |
+| Shell, TOML, JSON, YAML, Markdown | ✓ | `:LspInstall` | shfmt, taplo, prettier | `<Space>rf` (shell) | | |
+| Go, JS/TS, others | auto | `:LspInstall` | LSP or prettier | `<Space>rf` (Go, JS/TS) | `<Space>rr` | `launch.json` |
 
 ### Formatting
 
@@ -559,7 +610,7 @@ the selection on demand. `:ConformInfo` shows which formatter the current file u
 | Lua | stylua | reads `.stylua.toml` |
 | Shell (sh, bash, zsh) | shfmt | reads `.editorconfig` |
 | TOML | taplo | |
-| JSON, YAML, Markdown | prettier | installed only where `npm` exists; otherwise these files aren't formatted |
+| JS, TS, CSS, HTML, JSON, YAML, Markdown | prettier | installed only where `npm` exists; otherwise the language server formats, if there is one |
 | CMake and anything else | the language server, if it can format | e.g. neocmakelsp for `CMakeLists.txt` |
 
 The formatters are installed by Mason on first start, so formatting starts working once `:Mason`
