@@ -32,7 +32,7 @@ well-maintained plugins and mnemonic keymaps you can learn in a few weeks.
 - **IDE features from the built-in LSP**: go to definition, references, rename, code actions, inlay
   hints, diagnostics. The language servers are installed for you by Mason.
 - **Fast fuzzy finding** for files, text, symbols, help, keymaps and git (fzf-lua).
-- **Completion with snippets** using Vim's standard keys (blink.cmp).
+- **Completion with snippets**: `<Tab>` accepts, and Vim's `<C-n>`/`<C-p>`/`<C-y>` work too (blink.cmp).
 - **Treesitter** highlighting, indentation, folding, and code-aware text objects ("delete this function").
 - **Format on save**, which is safe in foreign codebases (conform.nvim).
 - **Git**: change signs, hunk staging, blame, lazygit, side-by-side diffs.
@@ -371,9 +371,20 @@ Many of these are Neovim's own defaults (`grn`, `gra`, `grr`, `gri`, `grt`, `gO`
 | `<Space>ci` / `cH` | C/C++: symbol info / type hierarchy |
 | `<Space>cA` / `cM` | C/C++: show AST / clangd memory usage |
 
-**Completion** (insert mode): `<C-n>`/`<C-p>` next/previous, `<C-y>` accept, `<C-e>` close,
-`<C-space>` open/toggle docs, `<Tab>`/`<S-Tab>` jump between snippet placeholders. These are Vim's
-standard completion keys, so they work everywhere.
+**Completion** (insert mode). The menu opens as you type:
+
+| Key | Action |
+|---|---|
+| `<Tab>` | accept the suggestion (the first one if you haven't moved); with no menu open, jump to the next snippet placeholder or insert a tab |
+| `<S-Tab>` | previous snippet placeholder |
+| `<C-n>` / `<C-p>` or `<Down>` / `<Up>` | next / previous suggestion |
+| `<C-y>` | accept (Vim's standard key) |
+| `<C-e>` | close the menu (then `<Tab>` inserts a real tab) |
+| `<C-space>` | open the menu / toggle the docs window |
+| `<C-b>` / `<C-f>` | scroll the docs window |
+| `<C-k>` | function signature help |
+
+Want a literal tab while the menu is open? Press `<C-e>` first, or `<C-v><Tab>`.
 
 ### Text objects and motions
 

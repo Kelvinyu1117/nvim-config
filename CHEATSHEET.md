@@ -10,6 +10,7 @@ Everyday operations for this config on one page. `<Space>` is the leader; `<C-x>
 - [Undo and redo](#undo-and-redo)
 - [Moving around](#moving-around)
 - [Editing](#editing)
+- [Autocomplete](#autocomplete)
 - [Selecting (visual mode)](#selecting-visual-mode)
 - [Search and replace](#search-and-replace)
 - [Files and buffers](#files-and-buffers)
@@ -130,8 +131,22 @@ Undo history is saved to disk, so it survives closing the file.
 | Auto-indent | `=ip` paragraph, `gg=G` whole file |
 | Change one function argument | `cia` (`daa` deletes it, with the comma) |
 | Surround | `ys{motion}{char}` add, `cs{old}{new}` change, `ds{char}` delete, `S{char}` in visual |
-| Complete a word | `<C-n>` / `<C-p>` next / previous, `<C-y>` accept, `<C-e>` close |
-| Snippet placeholders | `<Tab>` / `<S-Tab>` |
+
+## Autocomplete
+
+The menu opens by itself as you type (insert mode).
+
+| Do this | Keys |
+|---|---|
+| **Accept the suggestion** | `<Tab>` (takes the first one if you haven't picked) or `<C-y>` |
+| Pick the next / previous suggestion | `<C-n>` / `<C-p>` or `<Down>` / `<Up>` |
+| Close the menu | `<C-e>` |
+| Open the menu yourself | `<C-space>` (press again to toggle the docs) |
+| Scroll the docs window | `<C-b>` / `<C-f>` |
+| Next / previous snippet placeholder | `<Tab>` / `<S-Tab>` (when no menu is open) |
+| Insert a real tab while the menu is open | `<C-e>` then `<Tab>`, or `<C-v><Tab>` |
+| Show the function's parameters | `<C-k>` |
+| Complete a file path | type `./` or `/` and pick from the menu |
 
 ## Selecting (visual mode)
 
