@@ -42,9 +42,9 @@ return {
     { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete buffer" },
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete other buffers" },
     { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename file (updates imports)" },
-    -- Terminal. <Space>ft always works; <C-/> is quicker but some terminals never send it
-    -- (macOS Terminal.app, VS Code/JetBrains, which use it for "comment"). Inside the terminal:
-    -- <Esc><Esc> for normal mode, then `q` hides it. `2<Space>ft` opens a second terminal.
+    -- Terminal: <C-/> opens/hides it, also from inside the terminal. <Space>ft does the same for
+    -- terminal emulators that don't send Ctrl-/ (then hide from inside with <Esc><Esc> and `q`).
+    -- A count opens a separate terminal: `2<C-/>`.
     { "<leader>ft", function() Snacks.terminal() end, desc = "Terminal (toggle)" },
     { "<c-/>", function() Snacks.terminal() end, desc = "Toggle terminal", mode = { "n", "t" } },
     { "<c-_>", function() Snacks.terminal() end, desc = "which_key_ignore", mode = { "n", "t" } }, -- some terminals send <c-_> for <c-/>

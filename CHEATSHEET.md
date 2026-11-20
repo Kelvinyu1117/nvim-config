@@ -37,7 +37,7 @@ Everyday operations for this config on one page. `<Space>` is the leader; `<C-x>
 | Test | `<Space>tt` nearest, `<Space>tf` file |
 | Debug | `<Space>db` breakpoint, `<Space>dc` start |
 | Format | on save, or `<Space>cf` |
-| Shell | `<Space>ft` |
+| Shell | `<C-/>` (or `<Space>ft`) |
 | Commit | `<Space>gg` (lazygit: `space` stage, `c` commit, `P` push) |
 
 ## Survival
@@ -238,19 +238,19 @@ A *buffer* is an open file. Splits and tabs only show buffers.
 
 | Do this | Keys |
 |---|---|
-| **Open / hide the terminal** | `<Space>ft` |
-| Hide it while typing in it | `<Esc><Esc>` then `q` |
+| **Open / hide the terminal** | `<C-/>`, also while typing in it |
+| …if your terminal doesn't send `Ctrl-/` | `<Space>ft` to open, `<Esc><Esc>` then `q` to hide |
 | Leave terminal mode | `<Esc><Esc>` (or `<C-\><C-n>`) |
 | Hide it from normal mode | `q` |
 | Type into it again | `i` or `a` |
-| A second terminal | `2<Space>ft` |
+| A second terminal | `2<C-/>` (or `2<Space>ft`) |
 | Copy terminal output | `<Esc><Esc>`, then `v` … `y` like any buffer |
 | Paste into the shell | your terminal's paste key, or `<Esc><Esc>` then `p` |
 | Close it for good | `exit` in the shell |
 | Git UI in a floating terminal | `<Space>gg` (lazygit) |
 
-`<C-/>` also toggles it, but only in terminal emulators that pass `Ctrl-/` through. If it opens a `/` search
-instead, yours doesn't: see [Terminal in the README](README.md#terminal).
+`<C-/>` opening a `/` search instead? Your terminal emulator drops the Ctrl: use `<Space>ft`
+(see [Terminal in the README](README.md#terminal)).
 
 ## Code (LSP)
 
