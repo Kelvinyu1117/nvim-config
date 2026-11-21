@@ -25,6 +25,30 @@ if not ITALIC then
   })
 end
 
+-- Inlay hints (clangd's `: int` after `auto`, parameter names like `a:`) are drawn almost in the
+-- background color by most themes, which makes them invisible on a transparent background. After
+-- any colorscheme loads, color them a bit brighter than comments: readable, but still quieter than
+-- code. Toggle the hints themselves with <Space>uh.
+local function blend(a, b, t) -- mix two 0xRRGGBB colors, t = 0 gives a, t = 1 gives b
+  local out = 0
+  for shift = 0, 16, 8 do
+    local ca, cb = bit.band(bit.rshift(a, shift), 0xff), bit.band(bit.rshift(b, shift), 0xff)
+    out = out + bit.lshift(math.floor(ca + (cb - ca) * t + 0.5), shift)
+  end
+  return out
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("readable_inlay_hints", { clear = true }),
+  callback = function()
+    local comment = vim.api.nvim_get_hl(0, { name = "Comment", link = false }).fg
+    local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).fg
+    if comment and normal then
+      vim.api.nvim_set_hl(0, "LspInlayHint", { fg = blend(comment, normal, 0.3) })
+    end
+  end,
+})
+
 return {
   {
     "folke/tokyonight.nvim",
