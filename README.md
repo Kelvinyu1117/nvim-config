@@ -321,6 +321,7 @@ option. Search all keymaps with `<Space>sk`. Keys are grouped by a mnemonic lett
 | `<S-h>` / `<S-l>` | normal | previous / next buffer |
 | `<Space>bb` / `bd` / `bo` | normal | alternate buffer / delete buffer / delete others |
 | `<C-d>` / `<C-u>` | normal | half-page down / up (cursor stays centered) |
+| `<S-Up>` / `<S-Down>` | normal, insert, visual | VS Code-style: select whole lines and extend (`<S-Left>`/`<S-Right>` for characters); then `y` or `<C-c>` copies |
 | `J` / `K` | visual | move selected lines down / up |
 | `<` / `>` | visual | indent, keeping the selection |
 | `P` | visual | paste over the selection without losing what you yanked |
