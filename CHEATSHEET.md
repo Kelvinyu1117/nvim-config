@@ -95,6 +95,7 @@ pastes from it. Over SSH, yanks reach your laptop's clipboard through OSC 52 (se
 |---|---|
 | Copy (yank) | `y{motion}`: `yiw` word, `yy` line, `y$` to end of line, `yap` paragraph, `yaf` function |
 | Copy a selection | `v` / `V` / `<C-v>`, select, then `y` |
+| **VS Code-style**: select lines, copy, paste | `<S-Down>` / `<S-Up>` to select and extend, `y` or `<C-c>` to copy, move, `p` to paste below |
 | Cut | `d{motion}` (`dd` line, `diw` word) or select + `d`. `x` cuts one character |
 | Paste after / before the cursor | `p` / `P` |
 | Paste over a selection, keep what you copied | select, then `P` (lower-case `p` swaps them) |
@@ -172,6 +173,7 @@ The menu opens by itself as you type (insert mode).
 | Do this | Keys |
 |---|---|
 | Select characters / lines / a block | `v` / `V` / `<C-v>` |
+| Select with Shift+arrows (like VS Code) | `<S-Up>` / `<S-Down>` whole lines, `<S-Left>` / `<S-Right>` characters |
 | Select a word / paragraph / function | `viw` / `vip` / `vaf` |
 | Select inside quotes / brackets | `vi"` / `vi(` / `vi{` |
 | Select a syntax node | `S` then a label (flash treesitter) |

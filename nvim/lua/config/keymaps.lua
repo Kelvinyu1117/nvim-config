@@ -29,6 +29,21 @@ map("n", "<C-u>", "<C-u>zz", { desc = "Half page up (centered)" })
 map("n", "n", "nzzzv", { desc = "Next match (centered)" })
 map("n", "N", "Nzzzv", { desc = "Previous match (centered)" })
 
+-- VS Code-style selection: Shift+Up/Down selects whole lines and extends by line, Shift+Left/Right
+-- selects characters. Then `y` (or <C-c>) copies, `d` cuts, `p` pastes over it. The Vim way to do
+-- the same is `V` + j/k (lines) or `v` + h/l (characters).
+map("n", "<S-Up>", "Vk", { desc = "Select line up" })
+map("n", "<S-Down>", "Vj", { desc = "Select line down" })
+map("n", "<S-Left>", "vh", { desc = "Select left" })
+map("n", "<S-Right>", "vl", { desc = "Select right" })
+map("i", "<S-Up>", "<Esc>Vk", { desc = "Select line up" })
+map("i", "<S-Down>", "<Esc>Vj", { desc = "Select line down" })
+map("x", "<S-Up>", "k", { desc = "Extend selection up" })
+map("x", "<S-Down>", "j", { desc = "Extend selection down" })
+map("x", "<S-Left>", "h", { desc = "Extend selection left" })
+map("x", "<S-Right>", "l", { desc = "Extend selection right" })
+map("x", "<C-c>", "y", { desc = "Copy selection" })
+
 -- Visual mode: move selected lines, keep selection while indenting.
 -- Tip: `P` (capital) in visual mode pastes over the selection WITHOUT overwriting your yank.
 map("x", "J", ":move '>+1<cr>gv=gv", { desc = "Move selection down", silent = true })
